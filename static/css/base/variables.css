@@ -1,0 +1,177 @@
+/**
+ * CSS Custom Properties (Variables)
+ * ================================
+ * Central place for all design tokens used throughout the application.
+ * Organized by category for easy maintenance.
+ */
+
+:root {
+    /* ========================================
+       Colors - Primary Brand
+       ======================================== */
+    --color-primary: #0078D4;
+    --color-primary-dark: #005a9e;
+    --color-primary-light: #00BCF2;
+    --color-primary-rgb: 0, 120, 212;
+
+    /* ========================================
+       Colors - Background
+       ======================================== */
+    --color-bg: #0f0f0f;
+    --color-bg-secondary: #1a1a1a;
+    --color-bg-tertiary: #242424;
+
+    /* ========================================
+       Colors - Surfaces & Cards
+       ======================================== */
+    --color-card: #242424;
+    --color-card-hover: #2a2a2a;
+    --color-surface: #1a1a1a;
+    --color-surface-alt: #2a2a2a;
+
+    /* ========================================
+       Colors - Text
+       ======================================== */
+    --color-text: #ffffff;
+    --color-text-secondary: #a0a0a0;
+    --color-text-muted: #666666;
+
+    /* ========================================
+       Colors - Borders
+       ======================================== */
+    --color-border: #333333;
+    --color-border-light: #444444;
+    --color-border-focus: var(--color-primary);
+
+    /* ========================================
+       Colors - Semantic / Status
+       ======================================== */
+    --color-success: #10b981;
+    --color-success-rgb: 16, 185, 129;
+    --color-warning: #f59e0b;
+    --color-warning-rgb: 245, 158, 11;
+    --color-error: #ef4444;
+    --color-error-rgb: 239, 68, 68;
+    --color-info: #3b82f6;
+    --color-info-rgb: 59, 130, 246;
+
+    /* ========================================
+       Colors - Brand Specific
+       ======================================== */
+    --color-favorite: #ef4444;
+    --color-build: #0078D4;
+    --color-ignite: #ff6d00;
+    --color-agent-purple: #8b5cf6;
+    --color-agent-blue: #6366f1;
+
+    /* ========================================
+       Typography
+       ======================================== */
+    --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Consolas', monospace;
+    
+    --font-size-xs: 0.7rem;
+    --font-size-sm: 0.8rem;
+    --font-size-base: 0.9rem;
+    --font-size-md: 0.95rem;
+    --font-size-lg: 1rem;
+    --font-size-xl: 1.1rem;
+    --font-size-2xl: 1.2rem;
+    --font-size-3xl: 1.5rem;
+    --font-size-4xl: 2.5rem;
+    --font-size-5xl: 3.5rem;
+
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    --line-height-tight: 1.25;
+    --line-height-base: 1.5;
+    --line-height-relaxed: 1.6;
+
+    /* ========================================
+       Spacing
+       ======================================== */
+    --spacing-0: 0;
+    --spacing-1: 4px;
+    --spacing-2: 8px;
+    --spacing-3: 12px;
+    --spacing-4: 16px;
+    --spacing-5: 20px;
+    --spacing-6: 24px;
+    --spacing-8: 32px;
+    --spacing-10: 40px;
+    --spacing-12: 48px;
+    --spacing-16: 64px;
+    --spacing-20: 80px;
+
+    /* ========================================
+       Border Radius
+       ======================================== */
+    --radius-xs: 4px;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 10px;
+    --radius-xl: 12px;
+    --radius-2xl: 16px;
+    --radius-3xl: 28px;
+    --radius-full: 9999px;
+
+    /* ========================================
+       Shadows
+       ======================================== */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.1);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.25);
+    --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.3);
+    --shadow-2xl: 0 20px 50px rgba(0, 0, 0, 0.4);
+
+    /* ========================================
+       Transitions
+       ======================================== */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.2s ease;
+    --transition-slow: 0.3s ease;
+    --transition-slower: 0.4s ease;
+
+    /* ========================================
+       Z-Index Scale
+       ======================================== */
+    --z-base: 1;
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-fixed: 3000;
+    --z-modal-backdrop: 400;
+    --z-modal: 500;
+    --z-popover: 600;
+    --z-tooltip: 700;
+    --z-toast: 2000;
+
+    /* ========================================
+       Layout
+       ======================================== */
+    --container-max-width: 1400px;
+    --header-height: 60px;
+    --sidebar-width: 280px;
+}
+
+/* ========================================
+   Light Mode (Optional)
+   ======================================== */
+@media (prefers-color-scheme: light) {
+    :root.light-mode {
+        --color-bg: #f5f5f5;
+        --color-bg-secondary: #ffffff;
+        --color-bg-tertiary: #f9f9f9;
+        --color-card: #ffffff;
+        --color-card-hover: #f9f9f9;
+        --color-surface: #ffffff;
+        --color-text: #1a1a1a;
+        --color-text-secondary: #666666;
+        --color-text-muted: #999999;
+        --color-border: #e0e0e0;
+        --color-border-light: #eeeeee;
+    }
+}

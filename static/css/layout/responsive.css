@@ -1,0 +1,241 @@
+/**
+ * Responsive Styles
+ * =================
+ * Media queries for responsive layout.
+ */
+
+/* ========================================
+   Large Tablets & Small Desktops
+   ======================================== */
+
+@media (max-width: 1024px) {
+    .deck-builder-layout {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "outline"
+            "preview"
+            "chat";
+        max-height: none;
+    }
+
+    .outline-panel {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .deck-preview-panel {
+        order: -1;
+        max-height: 300px;
+    }
+
+    .chat-panel {
+        max-height: 500px;
+    }
+
+    .saved-decks-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ========================================
+   Tablets
+   ======================================== */
+
+@media (max-width: 768px) {
+    .container {
+        padding: var(--spacing-4);
+    }
+
+    .deck-builder-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-4);
+    }
+
+    .deck-header-buttons {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .search-results-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ========================================
+   Mobile
+   ======================================== */
+
+@media (max-width: 640px) {
+    /* Typography */
+    .logo {
+        font-size: var(--font-size-4xl);
+    }
+
+    .hero.searching .logo {
+        font-size: var(--font-size-3xl);
+    }
+
+    /* Grid */
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .search-results-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Navigation */
+    .nav-bar {
+        top: var(--spacing-3);
+        right: var(--spacing-3);
+        flex-wrap: wrap;
+    }
+
+    .nav-btn {
+        padding: var(--spacing-2) var(--spacing-3);
+        font-size: var(--font-size-sm);
+    }
+
+    /* Deck Editor */
+    .deck-editor-content {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    /* Deck Header */
+    .deck-header-buttons {
+        flex-wrap: wrap;
+        gap: var(--spacing-2);
+    }
+
+    .editing-deck-indicator {
+        margin-left: 0;
+        margin-top: var(--spacing-2);
+    }
+
+    /* Chat */
+    .chat-bubble {
+        max-width: 90%;
+    }
+
+    /* Cards */
+    .saved-decks-list {
+        grid-template-columns: 1fr;
+    }
+
+    /* View Mode Toggle */
+    .view-mode-toggle {
+        display: none;
+    }
+
+    /* Deck Slides - Force compact view on mobile */
+    .deck-preview-content.large-view .deck-slide-thumb {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16/9;
+    }
+}
+
+/* ========================================
+   Small Mobile
+   ======================================== */
+
+@media (max-width: 480px) {
+    .hero-inner {
+        padding: var(--spacing-8) var(--spacing-4);
+    }
+
+    .hero.searching .hero-inner {
+        padding: var(--spacing-3);
+    }
+
+    .search-box {
+        padding: var(--spacing-4) var(--spacing-10) var(--spacing-4) var(--spacing-12);
+        font-size: var(--font-size-base);
+    }
+
+    .card-body {
+        padding: var(--spacing-4);
+    }
+
+    .card-actions {
+        flex-direction: column;
+    }
+
+    .action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .sample-query-btn {
+        padding: var(--spacing-3);
+    }
+
+    .sample-text {
+        font-size: var(--font-size-xs);
+    }
+
+    .disclaimer-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .disclaimer-dismiss-btn {
+        align-self: center;
+    }
+}
+
+/* ========================================
+   Landscape Mobile
+   ======================================== */
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .hero {
+        min-height: auto;
+        padding: var(--spacing-4) 0;
+    }
+
+    .hero-content {
+        margin-bottom: var(--spacing-4);
+    }
+
+    .logo {
+        font-size: var(--font-size-3xl);
+    }
+
+    .tagline {
+        font-size: var(--font-size-base);
+    }
+}
+
+/* ========================================
+   Print Styles
+   ======================================== */
+
+@media print {
+    .nav-bar,
+    .disclaimer-footer,
+    .chat-input-area,
+    .download-modal,
+    .toast-notification,
+    .filter-toggle,
+    .deck-header-buttons {
+        display: none !important;
+    }
+
+    .hero {
+        min-height: auto;
+        position: relative;
+    }
+
+    .card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    body {
+        background: white;
+        color: black;
+    }
+}

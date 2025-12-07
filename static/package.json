@@ -1,0 +1,19 @@
+{
+  "name": "slidefinder-frontend",
+  "version": "1.0.0",
+  "description": "SlideFinder frontend - search Microsoft Build & Ignite slides",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.0",
+    "jsdom": "^25.0.0",
+    "@vitest/coverage-v8": "^2.1.0"
+  },
+  "keywords": ["slidefinder", "microsoft", "build", "ignite"],
+  "license": "MIT"
+}

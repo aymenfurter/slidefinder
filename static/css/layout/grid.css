@@ -1,0 +1,44 @@
+/**
+ * Grid Layout
+ * ===========
+ * Results grid and general grid utilities.
+ */
+
+/* ========================================
+   Results Grid
+   ======================================== */
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--spacing-5);
+}
+
+/* ========================================
+   Main Content
+   ======================================== */
+
+.main-content.hidden {
+    display: none;
+}
+
+/* ========================================
+   Empty State
+   ======================================== */
+
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-20) var(--spacing-5);
+    color: var(--color-text-secondary);
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: var(--spacing-5);
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    color: var(--color-text);
+    margin-bottom: var(--spacing-2);
+}

@@ -1,0 +1,18 @@
+# Exclude data folders (except thumbnails which are needed)
+data/ppts/
+data/slide_index/
+data/compiled_decks/
+data/temp_ppts/
+indexer/data/
+
+# Exclude dev files
+.git
+.gitignore
+.devcontainer
+*.md
+deploy.sh
+.dockerignore
+__pycache__
+*.pyc
+.DS_Store
+.env

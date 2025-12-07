@@ -1,0 +1,19 @@
+name: slidefinder
+metadata:
+  template: azd-init@1.18.1
+infra:
+  provider: bicep
+  path: infra
+  module: main
+services:
+  slidefinder:
+    project: .
+    host: containerapp
+    language: python
+    docker:
+      path: Dockerfile
+      context: .
+resources:
+  slidefinder:
+    type: host.containerapp
+    port: 7004

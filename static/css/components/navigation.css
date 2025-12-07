@@ -1,0 +1,244 @@
+/**
+ * Navigation Components
+ * =====================
+ * Top navigation bar and related elements.
+ */
+
+/* ========================================
+   Navigation Bar
+   ======================================== */
+
+.nav-bar {
+    position: fixed;
+    top: var(--spacing-5);
+    right: var(--spacing-5);
+    z-index: var(--z-fixed);
+    display: flex;
+    gap: var(--spacing-3);
+}
+
+/* ========================================
+   Session View Header
+   ======================================== */
+
+.session-header-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    flex-wrap: wrap;
+}
+
+.session-header-info strong {
+    font-size: var(--font-size-xl);
+    color: var(--color-text);
+}
+
+.session-title-text {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-md);
+    max-width: 500px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.session-download-btn,
+.session-watch-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-4);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    transition: all var(--transition-base);
+    margin-left: var(--spacing-2);
+}
+
+.session-download-btn {
+    background: rgba(var(--color-primary-rgb), 0.15);
+    color: var(--color-primary);
+}
+
+.session-download-btn:hover {
+    background: rgba(var(--color-primary-rgb), 0.25);
+    text-decoration: none;
+}
+
+.session-watch-btn {
+    background: rgba(var(--color-success-rgb), 0.15);
+    color: var(--color-success);
+}
+
+.session-watch-btn:hover {
+    background: rgba(var(--color-success-rgb), 0.25);
+    text-decoration: none;
+}
+
+/* ========================================
+   Deck Tabs
+   ======================================== */
+
+.deck-tabs {
+    display: flex;
+    gap: var(--spacing-1);
+}
+
+.deck-tab {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-3);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.deck-tab:hover {
+    background: var(--color-bg-secondary);
+    color: var(--color-text);
+}
+
+.deck-tab.active {
+    background: var(--color-primary);
+    color: white;
+}
+
+.deck-tab svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* ========================================
+   View Mode Toggle
+   ======================================== */
+
+.view-mode-toggle {
+    display: flex;
+    gap: 2px;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+    padding: 2px;
+}
+
+.view-mode-btn {
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-base);
+}
+
+.view-mode-btn svg {
+    width: 16px;
+    height: 16px;
+    color: var(--color-text-secondary);
+}
+
+.view-mode-btn:hover {
+    background: var(--color-card);
+}
+
+.view-mode-btn:hover svg {
+    color: var(--color-text);
+}
+
+.view-mode-btn.active {
+    background: var(--color-primary);
+}
+
+.view-mode-btn.active svg {
+    color: white;
+}
+
+/* ========================================
+   Deck Header
+   ======================================== */
+
+.deck-header-buttons {
+    display: none;
+}
+
+.deck-header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+}
+
+.deck-slide-count {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    background: var(--color-bg-secondary);
+    padding: var(--spacing-1) var(--spacing-3);
+    border-radius: var(--radius-xl);
+}
+
+/* ========================================
+   Editing Deck Indicator
+   ======================================== */
+
+.editing-deck-indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-3);
+    background: rgba(var(--color-success-rgb), 0.15);
+    border: 1px solid rgba(var(--color-success-rgb), 0.3);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    margin-left: var(--spacing-3);
+}
+
+.editing-label {
+    color: var(--color-text-secondary);
+}
+
+.editing-name {
+    color: var(--color-success);
+    font-weight: var(--font-weight-medium);
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.editing-save-btn,
+.editing-close-btn {
+    background: transparent;
+    border: none;
+    padding: var(--spacing-1);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-xs);
+    transition: all var(--transition-base);
+}
+
+.editing-save-btn {
+    color: var(--color-success);
+}
+
+.editing-save-btn:hover {
+    background: rgba(var(--color-success-rgb), 0.2);
+}
+
+.editing-close-btn {
+    color: var(--color-text-secondary);
+}
+
+.editing-close-btn:hover {
+    background: var(--color-bg-secondary);
+    color: var(--color-text);
+}

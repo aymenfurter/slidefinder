@@ -1,0 +1,202 @@
+/**
+ * Page Sections
+ * =============
+ * Major page sections like favorites, saved decks, etc.
+ */
+
+/* ========================================
+   Favorites Section
+   ======================================== */
+
+.favorites-section {
+    display: none;
+    padding-top: var(--spacing-20);
+}
+
+.favorites-section.visible {
+    display: block;
+}
+
+.favorites-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-6);
+}
+
+.favorites-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-semibold);
+    margin: 0;
+}
+
+.favorites-title svg {
+    color: var(--color-favorite);
+}
+
+.clear-favorites-btn {
+    padding: var(--spacing-2) var(--spacing-4);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.clear-favorites-btn:hover {
+    border-color: var(--color-favorite);
+    color: var(--color-favorite);
+}
+
+.favorites-empty {
+    text-align: center;
+    padding: var(--spacing-16) var(--spacing-5);
+    color: var(--color-text-secondary);
+}
+
+.favorites-empty svg {
+    width: 64px;
+    height: 64px;
+    color: var(--color-border);
+    margin-bottom: var(--spacing-4);
+}
+
+/* ========================================
+   Saved Decks Section
+   ======================================== */
+
+.saved-decks-section {
+    display: none;
+    padding-top: var(--spacing-20);
+}
+
+.saved-decks-section.visible {
+    display: block;
+}
+
+.saved-decks-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-6);
+}
+
+.saved-decks-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-semibold);
+    margin: 0;
+}
+
+.saved-decks-title svg {
+    color: var(--color-primary);
+}
+
+.saved-decks-empty {
+    text-align: center;
+    padding: var(--spacing-16) var(--spacing-5);
+    color: var(--color-text-secondary);
+}
+
+.saved-decks-empty svg {
+    width: 64px;
+    height: 64px;
+    color: var(--color-border);
+    margin-bottom: var(--spacing-4);
+}
+
+.saved-decks-empty h3 {
+    color: var(--color-text);
+    margin: 0 0 var(--spacing-2) 0;
+}
+
+.saved-decks-empty p {
+    margin: 0;
+    font-size: var(--font-size-base);
+}
+
+.saved-decks-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: var(--spacing-5);
+}
+
+/* ========================================
+   Disclaimer Footer
+   ======================================== */
+
+.disclaimer-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid var(--color-border);
+    padding: var(--spacing-3) var(--spacing-5);
+    z-index: var(--z-modal);
+}
+
+.disclaimer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+}
+
+.disclaimer-text {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-relaxed);
+    text-align: center;
+    margin: 0;
+    flex: 1;
+}
+
+.disclaimer-text strong {
+    color: var(--color-text);
+    font-weight: var(--font-weight-semibold);
+}
+
+.disclaimer-text a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: var(--font-weight-medium);
+}
+
+.disclaimer-text a:hover {
+    text-decoration: underline;
+}
+
+.disclaimer-dismiss-btn {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-2);
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    flex-shrink: 0;
+    transition: all var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.disclaimer-dismiss-btn:hover {
+    background: var(--color-card);
+    border-color: var(--color-text-secondary);
+    color: var(--color-text);
+}
+
+.disclaimer-footer.hidden {
+    display: none;
+}

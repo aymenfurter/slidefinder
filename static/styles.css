@@ -1,0 +1,32 @@
+/**
+ * SlideFinder - Main Stylesheet
+ * =============================
+ * Imports modular CSS files for maintainability.
+ */
+
+/* Base styles - must be first */
+@import url('css/base/variables.css');
+@import url('css/base/reset.css');
+@import url('css/base/utilities.css');
+@import url('css/base/accessibility.css');
+
+/* Layout */
+@import url('css/layout/hero.css');
+@import url('css/layout/grid.css');
+@import url('css/layout/sections.css');
+
+/* Components */
+@import url('css/components/buttons.css');
+@import url('css/components/cards.css');
+@import url('css/components/navigation.css');
+@import url('css/components/search.css');
+@import url('css/components/chat.css');
+@import url('css/components/modals.css');
+@import url('css/components/deck-builder.css');
+@import url('css/components/agents.css');
+
+/* Animations */
+@import url('css/animations.css');
+
+/* Responsive - must be last */
+@import url('css/layout/responsive.css');

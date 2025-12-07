@@ -1,0 +1,29 @@
+# SlideFinder - Python Dependencies
+
+# Web Framework
+fastapi==0.123.8
+uvicorn[standard]==0.38.0
+python-multipart==0.0.20
+Jinja2==3.1.2
+aiofiles==23.2.1
+
+# Data Validation
+pydantic==2.12.4
+pydantic-settings==2.12.0
+
+# PowerPoint Processing
+python-pptx==0.6.23
+
+# HTTP Client
+httpx==0.28.1
+
+# Azure Services
+azure-core==1.36.0
+azure-identity==1.25.1
+azure-search-documents==11.6.0
+
+# OpenAI
+openai==2.8.1
+
+# Microsoft Agent Framework
+agent-framework

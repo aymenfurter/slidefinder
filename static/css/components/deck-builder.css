@@ -1,0 +1,703 @@
+/**
+ * Deck Builder Components
+ * =======================
+ * Deck builder layout, preview panel, outline, and related styles.
+ */
+
+/* ========================================
+   Deck Builder Section
+   ======================================== */
+
+.deck-builder-section {
+    display: none;
+    padding-top: var(--spacing-20);
+    padding-bottom: var(--spacing-8);
+}
+
+.deck-builder-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-6);
+}
+
+.deck-builder-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+}
+
+.deck-builder-title h2 {
+    margin: 0;
+    font-size: var(--font-size-3xl);
+}
+
+.deck-builder-title svg {
+    width: 28px;
+    height: 28px;
+    color: var(--color-success);
+}
+
+/* ========================================
+   Deck Builder Layout
+   ======================================== */
+
+.deck-builder-layout {
+    display: grid;
+    grid-template-columns: 1fr 450px;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+        "outline preview"
+        "chat preview";
+    gap: var(--spacing-6);
+    min-height: 600px;
+    max-height: calc(100vh - 180px);
+}
+
+.deck-builder-layout.large-view-active {
+    grid-template-columns: 1fr 500px;
+}
+
+/* ========================================
+   Outline Panel
+   ======================================== */
+
+.outline-panel {
+    grid-area: outline;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(59, 130, 246, 0.08) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.35);
+    border-radius: var(--radius-2xl);
+    padding: var(--spacing-5);
+    margin-bottom: var(--spacing-4);
+    animation: outline-appear 0.5s ease-out;
+}
+
+@keyframes outline-appear {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.outline-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-4);
+}
+
+.outline-panel-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    flex: 1;
+}
+
+.outline-icon {
+    font-size: var(--font-size-3xl);
+}
+
+.outline-title-input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-3) var(--spacing-4);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    outline: none;
+    transition: border-color var(--transition-base);
+}
+
+.outline-title-input:focus {
+    border-color: rgba(139, 92, 246, 0.6);
+}
+
+.outline-panel-actions {
+    display: flex;
+    gap: var(--spacing-3);
+}
+
+.outline-label {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--spacing-2);
+}
+
+.outline-narrative-container {
+    margin-bottom: var(--spacing-4);
+}
+
+.outline-narrative-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-3);
+    font-size: var(--font-size-base);
+    color: var(--color-text);
+    resize: vertical;
+    min-height: 60px;
+    outline: none;
+    line-height: var(--line-height-base);
+}
+
+.outline-narrative-input:focus {
+    border-color: rgba(139, 92, 246, 0.5);
+}
+
+.outline-slides-container {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-4);
+}
+
+#outline-slides-editable {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    margin-bottom: var(--spacing-3);
+}
+
+.outline-slide-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-3);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-3);
+    animation: slide-item-appear 0.3s ease-out;
+}
+
+@keyframes slide-item-appear {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.outline-slide-number {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--color-agent-purple) 0%, var(--color-agent-blue) 100%);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: white;
+    flex-shrink: 0;
+}
+
+.outline-slide-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+}
+
+.outline-slide-topic-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+    padding: var(--spacing-1) 0;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text);
+    outline: none;
+}
+
+.outline-slide-topic-input:focus {
+    border-bottom-color: rgba(139, 92, 246, 0.5);
+}
+
+.outline-slide-purpose-input {
+    background: transparent;
+    border: none;
+    padding: 2px 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    outline: none;
+}
+
+/* ========================================
+   Outline Display (Read-only progress)
+   ======================================== */
+
+.outline-display {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: var(--radius-2xl);
+    padding: var(--spacing-5);
+    margin: var(--spacing-4) 0;
+    animation: outline-appear 0.5s ease-out;
+}
+
+.outline-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    margin-bottom: var(--spacing-3);
+}
+
+.outline-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+}
+
+.outline-narrative {
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-base);
+    margin-bottom: var(--spacing-4);
+    padding: var(--spacing-3);
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-lg);
+}
+
+.outline-progress {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+}
+
+.outline-progress-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-xs);
+    overflow: hidden;
+}
+
+.outline-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-agent-purple), var(--color-info));
+    width: 0%;
+    transition: width 0.5s ease-out;
+    border-radius: var(--radius-xs);
+}
+
+.outline-progress-text {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+}
+
+.outline-progress-display {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+}
+
+.outline-progress-display .outline-header {
+    margin-bottom: 0;
+}
+
+.outline-progress-display .outline-narrative {
+    margin-bottom: var(--spacing-1);
+    padding: var(--spacing-3);
+}
+
+.outline-progress-display .outline-progress {
+    margin-top: var(--spacing-2);
+}
+
+/* ========================================
+   Deck Preview Panel
+   ======================================== */
+
+.deck-preview-panel {
+    grid-area: preview;
+    background: var(--color-card);
+    border-radius: var(--radius-2xl);
+    border: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    max-height: calc(100vh - 180px);
+    position: relative;
+    transition: border-color var(--transition-slow);
+}
+
+.deck-preview-header {
+    padding: var(--spacing-3) var(--spacing-4);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+.deck-preview-header h3 {
+    margin: 0;
+    font-size: var(--font-size-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.deck-preview-header svg {
+    width: 20px;
+    height: 20px;
+    color: var(--color-text-secondary);
+}
+
+.deck-preview-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-4);
+    min-height: 0;
+}
+
+.deck-sources-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-4);
+    min-height: 0;
+}
+
+.deck-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--spacing-10) var(--spacing-5);
+    color: var(--color-text-secondary);
+    height: 100%;
+    min-height: 200px;
+}
+
+.deck-empty svg {
+    width: 48px;
+    height: 48px;
+    color: var(--color-border);
+    margin-bottom: var(--spacing-3);
+}
+
+.deck-empty h4 {
+    margin: 0 0 var(--spacing-2) 0;
+    color: var(--color-text);
+}
+
+.deck-empty p {
+    margin: 0;
+    font-size: var(--font-size-sm);
+}
+
+/* ========================================
+   Deck Slides List
+   ======================================== */
+
+.deck-slides-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+}
+
+.deck-slide-item {
+    display: flex;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    animation: slide-in 0.3s ease-out backwards;
+}
+
+.deck-slide-item:nth-child(1) { animation-delay: 0s; }
+.deck-slide-item:nth-child(2) { animation-delay: 0.05s; }
+.deck-slide-item:nth-child(3) { animation-delay: 0.1s; }
+.deck-slide-item:nth-child(4) { animation-delay: 0.15s; }
+.deck-slide-item:nth-child(5) { animation-delay: 0.2s; }
+.deck-slide-item:nth-child(6) { animation-delay: 0.25s; }
+
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.deck-slide-number {
+    width: 24px;
+    height: 24px;
+    background: var(--color-surface-alt);
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    flex-shrink: 0;
+}
+
+.deck-slide-thumb {
+    width: 80px;
+    height: 45px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.deck-slide-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.deck-slide-code {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text);
+}
+
+.deck-slide-reason {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-1);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* Large View Mode */
+.deck-preview-content.large-view .deck-slides-list {
+    gap: var(--spacing-4);
+}
+
+.deck-preview-content.large-view .deck-slide-item {
+    flex-direction: column;
+    padding: var(--spacing-3);
+}
+
+.deck-preview-content.large-view .deck-slide-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    margin-bottom: var(--spacing-3);
+}
+
+.deck-preview-content.large-view .deck-slide-number {
+    width: 28px;
+    height: 28px;
+    font-size: var(--font-size-sm);
+}
+
+.deck-preview-content.large-view .deck-slide-thumb {
+    width: 400px;
+    max-width: 100%;
+    height: 225px;
+    border-radius: var(--radius-md);
+}
+
+.deck-preview-content.large-view .deck-slide-info {
+    margin-top: var(--spacing-2);
+}
+
+.deck-preview-content.large-view .deck-slide-code {
+    font-size: var(--font-size-base);
+}
+
+.deck-preview-content.large-view .deck-slide-reason {
+    font-size: var(--font-size-sm);
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+}
+
+/* ========================================
+   Download Section
+   ======================================== */
+
+.deck-download-section {
+    padding: var(--spacing-4);
+    border-top: 1px solid var(--color-border);
+}
+
+.download-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+}
+
+.download-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+}
+
+.download-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.download-item-code {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary);
+}
+
+.download-item-title {
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.download-item-slides {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.download-item-btn {
+    width: 32px;
+    height: 32px;
+    background: var(--color-primary);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-decoration: none;
+}
+
+.download-item-btn:hover {
+    background: var(--color-primary-dark);
+    text-decoration: none;
+}
+
+/* ========================================
+   Save/Download Deck Buttons
+   ======================================== */
+
+.save-deck-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-3) var(--spacing-5);
+    background: var(--color-primary);
+    border: none;
+    border-radius: var(--radius-lg);
+    color: white;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.save-deck-btn:hover {
+    background: var(--color-primary-dark);
+}
+
+.save-deck-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.download-pptx-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-3) var(--spacing-5);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.download-pptx-btn:hover {
+    background: var(--color-card);
+    border-color: var(--color-primary);
+}
+
+.download-pptx-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.new-deck-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-3) var(--spacing-5);
+    background: var(--color-primary);
+    border: none;
+    border-radius: var(--radius-lg);
+    color: white;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.new-deck-btn:hover {
+    background: var(--color-primary-dark);
+}
+
+.add-deck-to-favorites-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-3);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.add-deck-to-favorites-btn:hover {
+    background: rgba(var(--color-error-rgb), 0.1);
+    border-color: var(--color-favorite);
+    color: var(--color-favorite);
+}
+
+.add-deck-to-favorites-btn:hover svg {
+    fill: var(--color-favorite);
+}
+
+.add-deck-to-favorites-btn.added {
+    background: rgba(var(--color-error-rgb), 0.15);
+    border-color: var(--color-favorite);
+    color: var(--color-favorite);
+}
+
+.add-deck-to-favorites-btn.added svg {
+    fill: var(--color-favorite);
+}
