@@ -12,13 +12,8 @@
 
 <br/>
 
-<img src="https://img.shields.io/badge/🎯_Semantic_Search-Search_inside_slide_content-blue?style=for-the-badge" alt="Semantic Search"/>
-<img src="https://img.shields.io/badge/🤖_AI_Deck_Builder-Create_custom_presentations-purple?style=for-the-badge" alt="AI Deck Builder"/>
-<img src="https://img.shields.io/badge/📦_PPTX_Export-Download_merged_decks-green?style=for-the-badge" alt="PPTX Export"/>
 
-<br/><br/>
-
-[**Features**](#-features) • [**Quick Start**](#-quick-start) • [**Architecture**](#-architecture) • [**API Reference**](#-api-reference) • [**Development**](#-development)
+[**Features**](#-features) • [**Quick Start**](#-quick-start) • [**Development**](#development)
 
 <br/>
 
