@@ -13,7 +13,7 @@
 <br/>
 
 
-[**Features**](#-features) • [**Quick Start**](#-quick-start) • [**Architecture**](#-architecture) • [**API Reference**](#-api-reference) • [**Development**](#-development)
+[**Features**](#-features) • [**Quick Start**](#-quick-start) • [**Development**](#development)
 
 <br/>
 
