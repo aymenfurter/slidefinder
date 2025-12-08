@@ -596,6 +596,86 @@
 }
 
 /* ========================================
+   Sources Download Section
+   ======================================== */
+
+.sources-download-section {
+    margin-top: var(--spacing-5);
+    padding-top: var(--spacing-4);
+}
+
+.sources-download-divider {
+    height: 1px;
+    background: var(--color-border);
+    margin-bottom: var(--spacing-4);
+}
+
+.sources-download-title {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-3);
+    text-align: center;
+}
+
+.sources-download-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+}
+
+.sources-download-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3) var(--spacing-4);
+    border: none;
+    border-radius: var(--radius-lg);
+    color: white;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    text-align: left;
+}
+
+.sources-download-btn .btn-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.sources-download-btn .btn-subtext {
+    font-size: var(--font-size-xs);
+    opacity: 0.85;
+    font-weight: var(--font-weight-normal);
+}
+
+.sources-download-csv {
+    background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%);
+}
+
+.sources-download-csv:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(var(--color-success-rgb), 0.4);
+}
+
+.sources-download-pptx {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    opacity: 0.85;
+}
+
+.sources-download-pptx:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.sources-download-pptx .btn-subtext {
+    color: #fcd34d;
+}
+
+/* ========================================
    Save/Download Deck Buttons
    ======================================== */
 

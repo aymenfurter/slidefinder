@@ -323,3 +323,44 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(var(--color-info-rgb), 0.4);
 }
+
+.chat-new-deck-buttons {
+    display: flex;
+    gap: var(--spacing-3);
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.chat-inspect-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-3) var(--spacing-6);
+    background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%);
+    border: none;
+    border-radius: var(--radius-lg);
+    color: white;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.chat-inspect-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(var(--color-success-rgb), 0.4);
+}
+
+.chat-new-deck-btn.secondary {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    opacity: 0.7;
+}
+
+.chat-new-deck-btn.secondary:hover {
+    background: var(--color-surface-hover);
+    opacity: 1;
+    transform: none;
+    box-shadow: none;
+}

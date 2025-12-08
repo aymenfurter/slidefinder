@@ -175,6 +175,35 @@ export function updateSourceDecks(decks) {
                 </div>
             `).join('')}
         </div>
+        <div class="sources-download-section">
+            <div class="sources-download-divider"></div>
+            <h4 class="sources-download-title">Export Your Deck</h4>
+            <div class="sources-download-buttons">
+                <button class="sources-download-btn sources-download-csv" id="sources-download-csv-btn">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    <span class="btn-text">
+                        Download as CSV
+                        <span class="btn-subtext">Work on it later in Excel</span>
+                    </span>
+                </button>
+                <button class="sources-download-btn sources-download-pptx" id="sources-download-pptx-btn">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span class="btn-text">
+                        Download as PPTX
+                        <span class="btn-subtext">⚠️ Experimental • Very slow • May require repair</span>
+                    </span>
+                </button>
+            </div>
+        </div>
     `;
 }
 

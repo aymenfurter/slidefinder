@@ -190,19 +190,30 @@
                         </div>
                     </div>
                     
-                    <!-- Create New Deck button - shown after deck is complete -->
+                    <!-- Deck complete area - shown after deck is complete -->
                     <div class="chat-new-deck-area" id="chat-new-deck-area" style="display: none;">
                         <div class="chat-new-deck-message">
                             <span class="check-icon">✓</span>
-                            Deck complete! Want to build another?
+                            Deck complete!
                         </div>
-                        <button class="chat-new-deck-btn" id="chat-new-deck-btn">
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                            Create New Deck
-                        </button>
+                        <div class="chat-new-deck-buttons">
+                            <button class="chat-inspect-btn" id="chat-inspect-btn">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                </svg>
+                                Inspect Your Deck
+                            </button>
+                            <button class="chat-new-deck-btn secondary" id="chat-new-deck-btn">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                Start New Deck
+                            </button>
+                        </div>
                     </div>
                 </div>
                 

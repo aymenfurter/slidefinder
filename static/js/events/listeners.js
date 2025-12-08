@@ -25,6 +25,7 @@ import {
     sendChatMessage,
     confirmOutlineAndContinue,
     downloadDeck,
+    downloadDeckAsCSV,
     switchPreviewTab,
     switchViewMode,
     addNewOutlineSlide
@@ -180,6 +181,20 @@ function setupDeckBuilderListeners() {
     // Chat new deck button
     getById('chat-new-deck-btn')?.addEventListener('click', () => {
         startNewDeck();
+    });
+    
+    // Chat inspect button - switches to sources tab
+    getById('chat-inspect-btn')?.addEventListener('click', () => {
+        switchPreviewTab('sources');
+    });
+    
+    // Download buttons in sources tab
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('#sources-download-csv-btn')) {
+            downloadDeckAsCSV();
+        } else if (e.target.closest('#sources-download-pptx-btn')) {
+            downloadDeck();
+        }
     });
 }
 

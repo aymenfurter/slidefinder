@@ -400,6 +400,61 @@ export function downloadDeck() {
     showToast('Download started...');
 }
 
+/**
+ * Downloads the current deck data as CSV.
+ */
+export function downloadDeckAsCSV() {
+    const deckSlides = get('deckSlides');
+    const deckSources = get('deckSources');
+    
+    if (!deckSlides || deckSlides.length === 0) {
+        showToast('No deck data to download.');
+        return;
+    }
+    
+    // Build CSV content
+    const headers = ['Position', 'Session Code', 'Slide Number', 'Title', 'Reason', 'Source URL'];
+    const rows = deckSlides.map((slide, idx) => {
+        const source = deckSources?.find(s => s.session_code === slide.session_code);
+        return [
+            idx + 1,
+            slide.session_code || '',
+            slide.slide_number || '',
+            slide.title || '',
+            slide.reason || '',
+            source?.ppt_url || ''
+        ];
+    });
+    
+    // Escape CSV values
+    const escapeCSV = (val) => {
+        const str = String(val);
+        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+            return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+    };
+    
+    const csvContent = [
+        headers.map(escapeCSV).join(','),
+        ...rows.map(row => row.map(escapeCSV).join(','))
+    ].join('\n');
+    
+    // Create and trigger download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = `slidefinder_deck_${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast('CSV downloaded!');
+}
+
 // Re-export sub-module functions for external use
 export {
     switchPreviewTab,

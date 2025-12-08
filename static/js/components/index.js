@@ -39,6 +39,7 @@ export {
     sendChatMessage,
     confirmOutlineAndContinue,
     downloadDeck,
+    downloadDeckAsCSV,
     switchPreviewTab,
     switchViewMode,
     addNewOutlineSlide
