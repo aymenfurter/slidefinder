@@ -1,8 +1,4 @@
-"""
-Deck Builder Service Package.
-
-Provides AI-powered deck building with outline generation and slide selection.
-"""
+"""Deck Builder Service Package."""
 
 from .service import DeckBuilderService, get_deck_builder_service
 from .models import (

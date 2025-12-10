@@ -32,6 +32,7 @@ import {
 } from '../components/index.js';
 
 import { renderCardGrid, attachSaveButtonListeners } from '../components/cards.js';
+import { initNerdInfo } from '../components/deck-builder/nerd-info.js';
 
 /** Debounce timer for search input */
 let searchDebounceTimer = null;
@@ -122,6 +123,9 @@ function setupFavoritesListeners() {
 function setupDeckBuilderListeners() {
     // Toggle deck builder
     getById('deckbuilder-toggle')?.addEventListener('click', toggleDeckBuilder);
+    
+    // Nerd info tab initialization (handles its own click events)
+    initNerdInfo();
     
     // New deck button
     getById('new-deck-btn')?.addEventListener('click', startNewDeck);

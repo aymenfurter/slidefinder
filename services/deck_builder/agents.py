@@ -1,9 +1,4 @@
-"""Agent orchestration for deck building.
-
-This module provides the WorkflowOrchestrator that:
-1. Uses direct agent calls for outline generation (simple, no workflow needed)
-2. Uses the slide selection workflow for each slide position
-"""
+"""Agent orchestration for deck building."""
 
 import asyncio
 import logging
@@ -30,11 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 class WorkflowOrchestrator:
-    """Orchestrates deck building.
-    
-    - Outline generation: Direct agent call (simple, stateless)
-    - Slide selection: Workflow-based (iterative critique/offer loop)
-    """
+    """Orchestrates outline generation and slide selection workflows."""
     
     def __init__(self):
         settings = get_settings()
@@ -72,20 +63,12 @@ class WorkflowOrchestrator:
             judge_agent=self._judge_agent,
         )
 
-    # =========================================================================
-    # Outline Generation (Direct Agent Call)
-    # =========================================================================
-    
     async def generate_outline(
         self,
         query: str,
         available_slides: list[dict]
     ) -> PresentationOutline:
-        """Generate a structured outline for the presentation.
-        
-        This is a simple, stateless operation - no workflow needed.
-        Just calls the outline agent directly.
-        """
+        """Generate a structured presentation outline using the outline agent."""
         slides_summary = format_slides_summary(available_slides)
         
         prompt = f"""Create a presentation outline for: {query}
@@ -104,10 +87,6 @@ Create a structured outline with 5-9 slides."""
         
         raise ValueError("Failed to generate presentation outline")
 
-    # =========================================================================
-    # Slide Selection (Workflow-Based)
-    # =========================================================================
-    
     async def select_slide_with_critique(
         self,
         outline_item: SlideOutlineItem,
@@ -115,19 +94,11 @@ Create a structured outline with 5-9 slides."""
         all_slides: list[dict],
         already_selected_keys: set[str]
     ) -> AsyncIterator[dict]:
-        """Run the slide selection workflow for a single slide position.
-        
-        This runs the workflow graph:
-        search → offer → critique → (approved? done : loop back)
-                                  → (max attempts? judge → done)
-        
-        Events are streamed in real-time as they happen during workflow execution.
-        """
+        """Run the slide selection workflow for a single slide position."""
         # Create an event queue for real-time streaming
         event_queue: asyncio.Queue[dict] = asyncio.Queue()
         
         def event_callback(event: dict) -> None:
-            """Callback to put events in the queue for streaming."""
             event_queue.put_nowait(event)
         
         # Create initial state for the workflow with event callback

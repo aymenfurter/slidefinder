@@ -13,7 +13,7 @@ class SlideOutlineItem(BaseModel):
 
 
 class PresentationOutline(BaseModel):
-    """Structured outline for the presentation."""
+    """Structured outline for a presentation."""
     title: str = Field(..., description="Overall presentation title")
     narrative: str = Field(..., description="Brief story arc description")
     slides: list[SlideOutlineItem] = Field(..., description="Ordered list of slides needed")
@@ -27,7 +27,7 @@ class SlideSelection(BaseModel):
 
 
 class CritiqueResult(BaseModel):
-    """Result from the critique agent."""
+    """Result from the critique agent evaluation."""
     approved: bool = Field(..., description="Whether the slide is approved")
     feedback: str = Field(..., description="Detailed feedback on the slide")
     issues: list[str] = Field(default_factory=list, description="Specific issues found")

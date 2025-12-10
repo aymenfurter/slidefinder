@@ -1,0 +1,1324 @@
+/**
+ * Nerd Info Panel Styles
+ * ======================
+ * Debug info panel for showing workflow details.
+ * Integrated as a tab in the chat panel.
+ */
+
+/* ========================================
+   Event Counter Badge (in tab)
+   ======================================== */
+
+.nerd-event-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    margin-left: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-blue) 100%);
+    color: white;
+    border-radius: 9px;
+    font-family: var(--font-mono);
+}
+
+/* ========================================
+   Nerd Info Content (inside chat panel)
+   ======================================== */
+
+.nerd-info-content {
+    flex: 1;
+    overflow-y: hidden;
+    display: none;
+    flex-direction: column;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: var(--font-size-sm);
+}
+
+/* ========================================
+   Fixed Workflow Header
+   ======================================== */
+
+.nerd-workflow-header {
+    flex-shrink: 0;
+    background: linear-gradient(180deg, rgba(30, 30, 40, 0.98) 0%, rgba(25, 25, 35, 0.95) 100%);
+    border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+    padding: var(--spacing-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+}
+
+/* Overview row with phase and filter */
+.nerd-workflow-overview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-2);
+}
+
+.nerd-phase-indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.nerd-phase-icon {
+    font-size: var(--font-size-lg);
+}
+
+.nerd-phase-label {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+}
+
+.nerd-slide-progress {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.nerd-clear-filter {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+}
+
+.nerd-clear-filter:hover {
+    background: rgba(239, 68, 68, 0.25);
+}
+
+/* Slides row with pill navigation */
+.nerd-slides-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.nerd-slides-label,
+.nerd-stages-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+
+.nerd-slide-pills {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.nerd-slide-pill {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.nerd-slide-pill.pending {
+    background: rgba(107, 114, 128, 0.3);
+    color: var(--color-text-secondary);
+}
+
+.nerd-slide-pill.success {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.nerd-slide-pill.failed {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.nerd-slide-pill.active {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+    border-color: #3b82f6;
+}
+
+.nerd-slide-pill.filtered {
+    background: rgba(139, 92, 246, 0.3);
+    border-color: rgba(139, 92, 246, 0.5);
+    color: #a78bfa;
+}
+
+.nerd-slide-pill:hover {
+    transform: scale(1.1);
+}
+
+/* Workflow stages row */
+.nerd-workflow-stages {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.nerd-workflow-graph-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    padding: var(--spacing-2);
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: var(--radius-md);
+    flex: 1;
+    justify-content: center;
+}
+
+.nerd-graph-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: var(--spacing-1) var(--spacing-2);
+    background: rgba(75, 75, 85, 0.3);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+}
+
+.nerd-graph-btn:hover {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+.nerd-graph-btn.active {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.5);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+
+.nerd-graph-btn.filtered {
+    background: rgba(139, 92, 246, 0.25);
+    border-color: rgba(139, 92, 246, 0.5);
+}
+
+.nerd-graph-btn.active.filtered {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(139, 92, 246, 0.2));
+    border-color: rgba(139, 92, 246, 0.5);
+}
+
+.nerd-graph-icon {
+    font-size: var(--font-size-base);
+}
+
+.nerd-graph-label {
+    font-size: 10px;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.nerd-graph-btn.active .nerd-graph-label {
+    color: #10b981;
+}
+
+.nerd-graph-btn.filtered .nerd-graph-label {
+    color: #a78bfa;
+}
+
+.nerd-graph-connector {
+    color: rgba(107, 114, 128, 0.5);
+    font-size: var(--font-size-xs);
+}
+
+/* Loop-back indicator (critique → search when rejected) */
+.nerd-loop-back {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: var(--spacing-2);
+    padding: 4px 8px;
+    background: rgba(75, 75, 85, 0.2);
+    border: 1px dashed rgba(107, 114, 128, 0.3);
+    border-radius: var(--radius-md);
+    opacity: 0.5;
+    transition: all 0.2s ease;
+}
+
+.nerd-loop-back.active {
+    opacity: 1;
+    background: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.4);
+    animation: nerd-loop-pulse 2s ease-in-out infinite;
+}
+
+@keyframes nerd-loop-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+    }
+    50% {
+        box-shadow: 0 0 8px 2px rgba(245, 158, 11, 0.3);
+    }
+}
+
+.nerd-loop-arrow {
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
+}
+
+.nerd-loop-back.active .nerd-loop-arrow {
+    color: #f59e0b;
+}
+
+.nerd-loop-count {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--color-text-secondary);
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1px 5px;
+    border-radius: var(--radius-sm);
+}
+
+.nerd-loop-back.active .nerd-loop-count {
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.2);
+}
+
+/* ========================================
+   Events Container
+   ======================================== */
+
+.nerd-events-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+}
+
+.nerd-events-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.nerd-events-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.nerd-events-container::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.3);
+    border-radius: 3px;
+}
+
+/* ========================================
+   Empty State
+   ======================================== */
+
+.nerd-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-10);
+    color: var(--color-text-secondary);
+    text-align: center;
+}
+
+.nerd-empty-icon {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-3);
+    opacity: 0.7;
+}
+
+.nerd-empty p {
+    margin: 0;
+    font-size: var(--font-size-sm);
+}
+
+/* ========================================
+   Event Cards
+   ======================================== */
+
+.nerd-event {
+    background: rgba(30, 30, 35, 0.8);
+    border: 1px solid rgba(75, 75, 85, 0.4);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-3);
+    animation: nerd-event-appear 0.2s ease-out;
+}
+
+@keyframes nerd-event-appear {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.nerd-event-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    margin-bottom: var(--spacing-2);
+}
+
+.nerd-event-icon {
+    font-size: var(--font-size-base);
+}
+
+.nerd-event-title {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    flex: 1;
+}
+
+.nerd-event-time {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    opacity: 0.7;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.nerd-event-desc {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: 1.4;
+}
+
+/* ========================================
+   Phase Events
+   ======================================== */
+
+.nerd-phase {
+    border-left: 3px solid #8b5cf6;
+    background: linear-gradient(90deg, rgba(139, 92, 246, 0.1) 0%, rgba(30, 30, 35, 0.8) 100%);
+}
+
+/* ========================================
+   LLM Call Events
+   ======================================== */
+
+.nerd-llm-call {
+    border-left: 3px solid #06b6d4;
+    background: linear-gradient(90deg, rgba(6, 182, 212, 0.08) 0%, rgba(30, 30, 35, 0.8) 100%);
+}
+
+.nerd-llm-call.complete {
+    border-left-color: #10b981;
+}
+
+.nerd-llm-call.error {
+    border-left-color: #ef4444;
+}
+
+.nerd-llm-header {
+    flex-wrap: wrap;
+}
+
+.nerd-llm-status {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xs);
+    border-radius: var(--radius-full);
+    background: rgba(107, 114, 128, 0.3);
+}
+
+.nerd-llm-status.complete {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+.nerd-llm-status.error {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.nerd-llm-section {
+    margin-top: var(--spacing-2);
+}
+
+.nerd-llm-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--spacing-1);
+}
+
+.nerd-llm-code {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(75, 75, 85, 0.3);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-2);
+    font-size: var(--font-size-xs);
+    color: #94a3b8;
+    max-height: 100px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.nerd-llm-meta {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-1);
+}
+
+.nerd-llm-meta code {
+    background: rgba(139, 92, 246, 0.15);
+    padding: 1px 4px;
+    border-radius: 3px;
+    color: #a78bfa;
+}
+
+/* ========================================
+   Step Events
+   ======================================== */
+
+.nerd-step {
+    border-left: 3px solid #f59e0b;
+}
+
+.nerd-step-details {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    background: rgba(0, 0, 0, 0.2);
+    padding: var(--spacing-2);
+    border-radius: var(--radius-sm);
+    margin-top: var(--spacing-2);
+}
+
+/* ========================================
+   Search Events
+   ======================================== */
+
+.nerd-search {
+    border-left: 3px solid #3b82f6;
+    padding: var(--spacing-2) var(--spacing-3);
+}
+
+.nerd-search-query {
+    font-style: italic;
+    color: #60a5fa;
+    font-size: var(--font-size-sm);
+}
+
+.nerd-search-result {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-1);
+}
+
+/* ========================================
+   Edge Events
+   ======================================== */
+
+.nerd-edge {
+    background: rgba(45, 45, 55, 0.6);
+    border: 1px dashed rgba(107, 114, 128, 0.3);
+    padding: var(--spacing-2) var(--spacing-3);
+}
+
+.nerd-edge-flow {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    font-size: var(--font-size-sm);
+}
+
+.nerd-edge-from,
+.nerd-edge-to {
+    background: rgba(139, 92, 246, 0.15);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    color: #a78bfa;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.nerd-edge-arrow {
+    color: var(--color-text-secondary);
+    font-weight: bold;
+}
+
+.nerd-edge-condition {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-1);
+    font-style: italic;
+}
+
+/* ========================================
+   Slide Workflow Events
+   ======================================== */
+
+.nerd-slide-workflow {
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(30, 30, 35, 0.9) 100%);
+    border-radius: var(--radius-lg);
+}
+
+.nerd-slide-workflow-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    margin-bottom: var(--spacing-3);
+}
+
+.nerd-slide-pos {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-weight: var(--font-weight-semibold);
+    color: white;
+    font-size: var(--font-size-sm);
+}
+
+.nerd-slide-topic {
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+}
+
+.nerd-workflow-graph {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    padding: var(--spacing-2);
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+}
+
+.nerd-graph-node {
+    padding: 4px 8px;
+    background: rgba(75, 75, 85, 0.4);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    white-space: nowrap;
+}
+
+.nerd-graph-node.active {
+    background: rgba(139, 92, 246, 0.3);
+    color: #a78bfa;
+    border: 1px solid rgba(139, 92, 246, 0.5);
+}
+
+.nerd-graph-node.complete {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+.nerd-graph-arrow {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+}
+
+/* ========================================
+   Slide Result Events
+   ======================================== */
+
+.nerd-slide-result {
+    padding: var(--spacing-2) var(--spacing-3);
+}
+
+.nerd-slide-result.success {
+    border-left: 3px solid #10b981;
+    background: rgba(16, 185, 129, 0.08);
+}
+
+.nerd-slide-result.failed {
+    border-left: 3px solid #ef4444;
+    background: rgba(239, 68, 68, 0.08);
+}
+
+.nerd-result-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+}
+
+.nerd-result-icon {
+    font-size: var(--font-size-base);
+}
+
+.nerd-result-meta {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-1);
+}
+
+/* ========================================
+   Executor Events
+   ======================================== */
+
+.nerd-executor {
+    border-left: 3px solid #f59e0b;
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.08) 0%, rgba(30, 30, 35, 0.8) 100%);
+}
+
+.nerd-executor-search {
+    border-left-color: #3b82f6;
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.08) 0%, rgba(30, 30, 35, 0.8) 100%);
+}
+
+.nerd-executor-offer {
+    border-left-color: #10b981;
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, rgba(30, 30, 35, 0.8) 100%);
+}
+
+.nerd-executor-critique {
+    border-left-color: #f59e0b;
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.08) 0%, rgba(30, 30, 35, 0.8) 100%);
+}
+
+.nerd-executor-judge {
+    border-left-color: #8b5cf6;
+    background: linear-gradient(90deg, rgba(139, 92, 246, 0.08) 0%, rgba(30, 30, 35, 0.8) 100%);
+}
+
+.nerd-executor-meta {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-1);
+}
+
+/* ========================================
+   Workflow Search Events
+   ======================================== */
+
+.nerd-workflow-search {
+    border-left: 3px solid #3b82f6;
+}
+
+.nerd-search-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-1);
+}
+
+.nerd-retry-badge {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.nerd-previous-searches {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-2);
+    opacity: 0.7;
+}
+
+/* ========================================
+   Slide Offered Events
+   ======================================== */
+
+.nerd-slide-offered {
+    border-left: 3px solid #10b981;
+}
+
+.nerd-offered-reason {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-2);
+    line-height: 1.4;
+}
+
+/* ========================================
+   Critique Events
+   ======================================== */
+
+.nerd-critique {
+    border-left: 3px solid #f59e0b;
+}
+
+.nerd-critique.approved {
+    border-left-color: #10b981;
+}
+
+.nerd-critique.rejected {
+    border-left-color: #ef4444;
+}
+
+.nerd-critique-content {
+    display: flex;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-2);
+}
+
+.nerd-critique-details {
+    flex: 1;
+}
+
+.nerd-critique-feedback {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+}
+
+.nerd-critique-suggestion {
+    margin-top: var(--spacing-2);
+    font-size: var(--font-size-xs);
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+    padding: var(--spacing-2);
+    border-radius: var(--radius-sm);
+}
+
+/* ========================================
+   Judge Events
+   ======================================== */
+
+.nerd-judge {
+    border-left: 3px solid #8b5cf6;
+    background: linear-gradient(90deg, rgba(139, 92, 246, 0.08) 0%, rgba(30, 30, 35, 0.8) 100%);
+}
+
+.nerd-judge-info {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-2);
+}
+
+.nerd-judge-result {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-2);
+    padding: var(--spacing-2);
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: var(--radius-md);
+}
+
+.nerd-judge-label {
+    font-size: var(--font-size-xs);
+    color: #10b981;
+    font-weight: var(--font-weight-semibold);
+}
+
+.nerd-judge-reason {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-2);
+    line-height: 1.4;
+}
+
+/* ========================================
+   Fallback Events
+   ======================================== */
+
+.nerd-fallback {
+    border-left: 3px solid #f59e0b;
+    background: rgba(245, 158, 11, 0.08);
+}
+
+.nerd-fallback-info {
+    font-size: var(--font-size-sm);
+    color: #f59e0b;
+}
+
+.nerd-fallback-slide {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-1);
+}
+
+/* ========================================
+   Generic Events
+   ======================================== */
+
+.nerd-generic {
+    border-left: 3px solid rgba(107, 114, 128, 0.5);
+}
+
+.nerd-generic-details {
+    margin-top: var(--spacing-2);
+}
+
+.nerd-generic-details summary {
+    cursor: pointer;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.nerd-json {
+    font-size: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: var(--spacing-2);
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+    color: #94a3b8;
+    margin-top: var(--spacing-1);
+}
+
+/* ========================================
+   Slide Thumbnails
+   ======================================== */
+
+.nerd-slide-thumb {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(75, 75, 85, 0.4);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: all 0.15s ease;
+    cursor: pointer;
+}
+
+.nerd-slide-thumb:hover {
+    border-color: rgba(139, 92, 246, 0.5);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+
+.nerd-slide-thumb img {
+    display: block;
+    object-fit: cover;
+    background: rgba(30, 30, 40, 0.8);
+}
+
+.nerd-thumb-small {
+    width: 80px;
+}
+
+.nerd-thumb-small img {
+    width: 80px;
+    height: 45px;
+}
+
+.nerd-thumb-medium {
+    width: 120px;
+    margin-top: var(--spacing-2);
+}
+
+.nerd-thumb-medium img {
+    width: 120px;
+    height: 68px;
+}
+
+.nerd-thumb-label {
+    font-size: 9px;
+    color: var(--color-text-secondary);
+    padding: 3px 6px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.nerd-thumb-error img {
+    display: none;
+}
+
+.nerd-thumb-error::before {
+    content: '🖼️';
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 45px;
+    font-size: 1.2rem;
+    opacity: 0.4;
+}
+
+.nerd-thumb-medium.nerd-thumb-error::before {
+    height: 68px;
+}
+
+/* ========================================
+   Slide Gallery
+   ======================================== */
+
+.nerd-slide-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-2);
+    padding: var(--spacing-2);
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-md);
+}
+
+.nerd-gallery-more {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-2) var(--spacing-3);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    background: rgba(75, 75, 85, 0.3);
+    border-radius: var(--radius-md);
+}
+
+/* ========================================
+   Header Actions (filter + code links)
+   ======================================== */
+
+.nerd-header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+/* ========================================
+   Code Links Toggle & Panel
+   ======================================== */
+
+.nerd-code-links-toggle {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+}
+
+.nerd-code-links-toggle:hover,
+.nerd-code-links-toggle.active {
+    background: rgba(59, 130, 246, 0.25);
+    border-color: rgba(59, 130, 246, 0.5);
+}
+
+.nerd-code-links-panel {
+    background: linear-gradient(135deg, rgba(30, 30, 45, 0.95) 0%, rgba(20, 20, 30, 0.98) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-3);
+    animation: nerd-panel-slide 0.2s ease-out;
+}
+
+@keyframes nerd-panel-slide {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.nerd-code-links-header {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: var(--spacing-3);
+    padding-bottom: var(--spacing-2);
+    border-bottom: 1px solid rgba(75, 75, 85, 0.3);
+}
+
+.nerd-code-links-header span:first-child {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+}
+
+.nerd-code-links-subtitle {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.nerd-code-links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--spacing-2);
+}
+
+.nerd-code-link {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--spacing-2) var(--spacing-3);
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(75, 75, 85, 0.3);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.nerd-code-link:hover {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.4);
+    transform: translateX(3px);
+}
+
+.nerd-code-link-name {
+    font-weight: var(--font-weight-semibold);
+    color: #60a5fa;
+    font-size: var(--font-size-sm);
+}
+
+.nerd-code-link-desc {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    line-height: 1.4;
+}
+
+/* ========================================
+   Inline Code Links (in event headers)
+   ======================================== */
+
+.nerd-inline-code-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 6px;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: var(--radius-sm);
+    color: #60a5fa;
+    font-size: 10px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.nerd-inline-code-link:hover {
+    background: rgba(59, 130, 246, 0.25);
+    border-color: rgba(59, 130, 246, 0.5);
+    transform: scale(1.05);
+}
+
+/* ========================================
+   Mini Code Links (in slide workflow)
+   ======================================== */
+
+.nerd-slide-workflow-code-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-1);
+    margin-top: var(--spacing-2);
+    padding-top: var(--spacing-2);
+    border-top: 1px solid rgba(75, 75, 85, 0.2);
+}
+
+.nerd-mini-code-link {
+    padding: 2px 8px;
+    background: rgba(75, 75, 85, 0.3);
+    border: 1px solid rgba(75, 75, 85, 0.4);
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    transition: all 0.15s ease;
+}
+
+.nerd-mini-code-link:hover {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+}
+
+/* ========================================
+   Image Lightbox
+   ======================================== */
+
+.nerd-lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: nerd-lightbox-fade-in 0.2s ease-out;
+}
+
+@keyframes nerd-lightbox-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.nerd-lightbox-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    cursor: pointer;
+}
+
+.nerd-lightbox-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: nerd-lightbox-zoom 0.2s ease-out;
+}
+
+@keyframes nerd-lightbox-zoom {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.nerd-lightbox-content img {
+    max-width: 90vw;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.nerd-lightbox-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nerd-lightbox-close:hover {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.nerd-lightbox-label {
+    margin-top: var(--spacing-3);
+    padding: var(--spacing-2) var(--spacing-4);
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: var(--radius-md);
+    color: white;
+    font-size: var(--font-size-sm);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+/* ========================================
+   Text Lightbox (for prompts)
+   ======================================== */
+
+.nerd-lightbox-text-content {
+    max-width: 80vw;
+    width: 800px;
+    max-height: 85vh;
+    background: linear-gradient(180deg, rgba(30, 30, 40, 0.98) 0%, rgba(25, 25, 35, 0.98) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.nerd-lightbox-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-3) var(--spacing-4);
+    background: rgba(139, 92, 246, 0.1);
+    border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.nerd-lightbox-title {
+    font-weight: 600;
+    color: var(--accent-purple);
+    font-size: var(--font-size-base);
+}
+
+.nerd-lightbox-text .nerd-lightbox-close {
+    position: static;
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+}
+
+.nerd-lightbox-text-body {
+    padding: var(--spacing-4);
+    margin: 0;
+    overflow: auto;
+    max-height: calc(85vh - 60px);
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+    color: var(--text-secondary);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+/* ========================================
+   Expand Button
+   ======================================== */
+
+.nerd-expand-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: var(--spacing-2);
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--accent-blue);
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+}
+
+.nerd-expand-btn:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.5);
+    color: white;
+}
+

@@ -49,7 +49,7 @@ export function updateDeckPreview(slides, isNewSlides = false) {
     }
     
     if (slideCount) {
-        slideCount.textContent = `${currentSlides.length} slides`;
+        slideCount.textContent = `${currentSlides.length}`;
         slideCount.style.display = 'inline';
     }
     

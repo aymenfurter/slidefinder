@@ -67,6 +67,7 @@ async def deck_builder_chat_stream(request: ChatRequest) -> EventSourceResponse:
     - download_info: Source deck information
     - complete: Processing complete
     - error: Error occurred
+    - debug_*: Debug events (always sent, frontend decides visibility)
     """
     session_id = request.session_id
     

@@ -53,6 +53,11 @@ import {
     updateIntermediateDeck
 } from './preview.js';
 
+import {
+    handleDebugEvent,
+    clearNerdInfo
+} from './nerd-info.js';
+
 /**
  * Shows the deck builder section.
  */
@@ -107,6 +112,7 @@ export function startNewDeck() {
     hideOutlinePanel();
     hideNewDeckOption();
     resetOutlinePanel();
+    clearNerdInfo();
     
     const chatInputArea = getById('chat-input-area');
     if (chatInputArea) {
@@ -125,6 +131,12 @@ export function startNewDeck() {
  * @param {Object} context - Processing context
  */
 function handleSSEEvent(data, context) {
+    // Route all debug_* events to the nerd info panel
+    if (data.type && data.type.startsWith('debug_')) {
+        handleDebugEvent(data);
+        return;  // Debug events are handled separately
+    }
+    
     switch (data.type) {
         case 'session':
             setState({ deckSessionId: data.session_id });

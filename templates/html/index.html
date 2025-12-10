@@ -152,6 +152,17 @@
                 </div>
                 
                 <div class="chat-panel">
+                    <div class="chat-panel-tabs" role="tablist" aria-label="Chat panel tabs">
+                        <button class="chat-panel-tab active" id="chat-tab" data-tab="chat" role="tab" aria-selected="true" aria-controls="chat-messages">
+                            <span>💬</span>
+                            Chat
+                        </button>
+                        <button class="chat-panel-tab" id="nerd-tab" data-tab="nerd" role="tab" aria-selected="false" aria-controls="nerd-info-content">
+                            <span>🤓</span>
+                            Nerd Info
+                            <span class="nerd-event-count" style="display: none;">0</span>
+                        </button>
+                    </div>
                     <div class="chat-messages" id="chat-messages" role="log" aria-live="polite" aria-label="Chat messages">
                         <div class="chat-message assistant">
                             <div class="chat-avatar" aria-hidden="true">🤖</div>
@@ -215,6 +226,14 @@
                             </button>
                         </div>
                     </div>
+                    
+                    <!-- Nerd Info Content - shown when Nerd Info tab is active -->
+                    <div class="nerd-info-content" id="nerd-info-content" style="display: none;" role="tabpanel" aria-labelledby="nerd-tab">
+                        <div class="nerd-empty">
+                            <span class="nerd-empty-icon">🤓</span>
+                            <p>Start building a deck to see the workflow</p>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="deck-preview-panel">
@@ -260,7 +279,7 @@
                                     </svg>
                                 </button>
                             </div>
-                            <span class="deck-slide-count" id="deck-slide-count" style="display:none;" aria-live="polite">0 slides</span>
+                            <span class="deck-slide-count" id="deck-slide-count" style="display:none;" aria-live="polite">0</span>
                         </div>
                     </div>
                     
@@ -288,6 +307,8 @@
                         </div>
                     </div>
                 </div>
+                
+
             </div>
         </section>
     </main>

@@ -1,10 +1,15 @@
 """Main Deck Builder Service."""
 
 import logging
+import time
 from pathlib import Path
 from typing import AsyncIterator, Optional
 
 from dotenv import load_dotenv
+
+INITIAL_SEARCH_LIMIT = 30
+SUB_SEARCH_LIMIT = 10
+SEARCH_PREVIEW_COUNT = 8
 
 from config import get_settings
 from models.deck import DeckSession
@@ -13,6 +18,7 @@ from services.search_service import get_search_service
 from .agents import WorkflowOrchestrator
 from .helpers import compute_source_decks
 from .models import SlideOutlineItem, PresentationOutline
+from . import events  # Debug event factories
 
 load_dotenv()
 
@@ -20,14 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 class DeckBuilderService:
-    """
-    AI-powered deck builder with Outline → Critique/Offer workflow.
-    
-    Workflow:
-    1. Initial Search: Find relevant slides based on user query
-    2. Outline Agent: Creates a structured outline using query + available slides
-    3. For each slide in outline, run Critique & Offer loop to select best match
-    """
+    """AI-powered deck builder with outline generation and slide selection workflow."""
     
     def __init__(self):
         self._settings = get_settings()
@@ -41,20 +40,39 @@ class DeckBuilderService:
     ) -> AsyncIterator[dict]:
         """Process a user message and stream events."""
         try:
+            # Emit code documentation links for nerd mode
+            yield events.code_documentation()
+            
+            yield events.phase_init(message)
             yield {"type": "thinking", "message": "Starting deck build..."}
             
+            # --- Initial Search Phase ---
+            yield events.phase_search()
             yield {"type": "agent_start", "agent": "Researcher", "task": "Searching for relevant slides"}
+            
+            start_time = time.time()
             all_slides = await self._initial_search(message)
+            search_duration = int((time.time() - start_time) * 1000)
+            
             yield {"type": "agent_complete", "agent": "Researcher", "summary": f"Found {len(all_slides)} candidate slides"}
-            yield {"type": "search_complete", "results": all_slides[:8]}
+            yield {"type": "search_complete", "results": all_slides[:SEARCH_PREVIEW_COUNT]}
+            yield events.search_complete(message, len(all_slides), search_duration, all_slides)
             
             if not all_slides:
                 yield {"type": "message", "content": "I couldn't find any relevant slides for your request. Please try a different topic."}
                 yield {"type": "complete"}
                 return
             
+            # --- Outline Generation Phase ---
+            yield events.phase_outline()
             yield {"type": "agent_start", "agent": "Architect", "task": "Creating presentation outline"}
+            yield events.outline_llm_start(message, all_slides, len(all_slides))
+            
+            start_time = time.time()
             outline = await self._orchestrator.generate_outline(message, all_slides)
+            outline_duration = int((time.time() - start_time) * 1000)
+            
+            yield events.outline_llm_complete(outline, outline_duration)
             yield {"type": "agent_complete", "agent": "Architect", "summary": f"Created outline with {len(outline.slides)} slides"}
             
             yield {
@@ -85,7 +103,7 @@ class DeckBuilderService:
         outline_data: dict,
         all_slides: list[dict]
     ) -> AsyncIterator[dict]:
-        """Continue deck building after user confirms/edits the outline."""
+        """Continue deck building after user confirms the outline."""
         try:
             outline = PresentationOutline(
                 title=outline_data.get("title", "Presentation"),
@@ -101,12 +119,14 @@ class DeckBuilderService:
                 ]
             )
             
+            yield events.phase_slide_selection(len(outline.slides))
             yield {"type": "outline_confirmed", "title": outline.title, "slide_count": len(outline.slides)}
             
             final_deck = []
             already_selected_keys = set()
             
             for outline_item in outline.slides:
+                yield events.slide_workflow_start(outline_item.position, outline_item.topic, len(outline.slides))
                 yield {
                     "type": "slide_selection_start",
                     "position": outline_item.position,
@@ -131,6 +151,7 @@ class DeckBuilderService:
                     final_deck.append(selected_slide)
                     already_selected_keys.add(f"{selected_slide['session_code']}_{selected_slide['slide_number']}")
                     
+                    yield events.slide_workflow_complete(outline_item.position, True, selected_slide)
                     yield {
                         "type": "slide_selected",
                         "position": outline_item.position,
@@ -138,6 +159,7 @@ class DeckBuilderService:
                         "topic": outline_item.topic
                     }
                 else:
+                    yield events.slide_workflow_complete(outline_item.position, False)
                     yield {
                         "type": "slide_not_found",
                         "position": outline_item.position,
@@ -151,6 +173,8 @@ class DeckBuilderService:
                     "revision_round": 0,
                     "is_final": False
                 }
+            
+            yield events.phase_complete(len(final_deck))
             
             if final_deck:
                 session.compiled_deck = final_deck
@@ -176,23 +200,27 @@ class DeckBuilderService:
             yield {"type": "error", "message": str(e)}
 
     async def _initial_search(self, query: str) -> list[dict]:
-        """Perform initial search to find candidate slides."""
-        results, _ = self._search_service.search(query, limit=30, include_pptx_status=True)
+        """Search for candidate slides matching the query."""
+        results, _ = self._search_service.search(query, limit=INITIAL_SEARCH_LIMIT, include_pptx_status=True)
         all_slides = [r.model_dump() for r in results]
         
-        words = query.split()
-        if len(words) > 2:
-            sub_query = " ".join(words[:len(words)//2])
-            sub_results, _ = self._search_service.search(sub_query, limit=10, include_pptx_status=True)
-            existing_keys = {f"{s['session_code']}_{s['slide_number']}" for s in all_slides}
-            
-            for r in sub_results:
-                slide_dict = r.model_dump()
-                key = f"{slide_dict['session_code']}_{slide_dict['slide_number']}"
-                if key not in existing_keys:
-                    all_slides.append(slide_dict)
-        
+        self._add_partial_query_results(query, all_slides)
         return all_slides
+    
+    def _add_partial_query_results(self, query: str, slides: list[dict]) -> None:
+        """Add results from a partial query to diversify candidates."""
+        words = query.split()
+        if len(words) <= 2:
+            return
+        
+        sub_query = " ".join(words[:len(words)//2])
+        sub_results, _ = self._search_service.search(sub_query, limit=SUB_SEARCH_LIMIT, include_pptx_status=True)
+        existing_keys = {_slide_key(s) for s in slides}
+        
+        for result in sub_results:
+            slide_dict = result.model_dump()
+            if _slide_key(slide_dict) not in existing_keys:
+                slides.append(slide_dict)
 
     async def generate_deck_pptx(self, session: DeckSession) -> Path:
         """Generate a PPTX file from the compiled deck."""
@@ -229,3 +257,8 @@ def get_deck_builder_service() -> DeckBuilderService:
     if _deck_builder_service is None:
         _deck_builder_service = DeckBuilderService()
     return _deck_builder_service
+
+
+def _slide_key(slide: dict) -> str:
+    """Generate a unique key for a slide."""
+    return f"{slide['session_code']}_{slide['slide_number']}"
