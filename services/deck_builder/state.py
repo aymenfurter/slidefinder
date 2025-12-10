@@ -41,12 +41,10 @@ class SlideSelectionState(BaseModel):
     
     def model_post_init(self, __context) -> None:
         self._debug = DebugEventEmitter(self.event_callback)
-    
+
     @property
     def debug(self) -> DebugEventEmitter:
-        if self._debug is None:
-            self._debug = DebugEventEmitter(self.event_callback)
-        return self._debug
+        return self._debug or DebugEventEmitter(self.event_callback)
     
     def emit_event(self, event: dict) -> None:
         self.events.append(event)
