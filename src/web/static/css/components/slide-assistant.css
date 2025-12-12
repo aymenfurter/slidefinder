@@ -1,0 +1,725 @@
+/**
+ * Slide Assistant Components
+ * ==========================
+ * AI-powered slide finder chat - matches deck-builder styling.
+ */
+
+/* ========================================
+   Slide Assistant Section
+   ======================================== */
+
+.slide-assistant-section {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 520px;
+    max-width: 100vw;
+    background: var(--color-bg);
+    border-left: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    z-index: var(--z-fixed);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.slide-assistant-section.visible {
+    transform: translateX(0);
+}
+
+/* When assistant is open, add padding to body to reserve space for the panel.
+   This allows all content to naturally center within the remaining space. */
+body.assistant-open {
+    padding-right: 520px;
+    transition: padding-right 0.3s ease;
+}
+
+body {
+    transition: padding-right 0.3s ease;
+}
+
+/* ========================================
+   Assistant Header
+   ======================================== */
+
+.slide-assistant-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-4) var(--spacing-5);
+    background: var(--color-card);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.slide-assistant-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+}
+
+.slide-assistant-title svg {
+    width: 24px;
+    height: 24px;
+    color: var(--color-primary);
+}
+
+.assistant-header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.assistant-clear-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    padding: var(--spacing-2) var(--spacing-3);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.assistant-clear-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+
+.assistant-zoom-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.assistant-zoom-btn:hover {
+    background: var(--color-card);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.assistant-zoom-btn .zoom-collapse {
+    display: none;
+}
+
+.slide-assistant-section.zoomed .assistant-zoom-btn .zoom-expand {
+    display: none;
+}
+
+.slide-assistant-section.zoomed .assistant-zoom-btn .zoom-collapse {
+    display: block;
+}
+
+.assistant-close-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.assistant-close-btn:hover {
+    background: var(--color-card);
+    color: var(--color-text);
+}
+
+.assistant-close-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Zoomed/Full Width State */
+.slide-assistant-section.zoomed {
+    width: 100%;
+    border-left: none;
+}
+
+body.assistant-zoomed {
+    padding-right: 0;
+}
+
+body.assistant-zoomed .main-content,
+body.assistant-zoomed .hero,
+body.assistant-zoomed .favorites-section {
+    display: none;
+}
+
+/* ========================================
+   Assistant Messages Container
+   ======================================== */
+
+.assistant-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    scroll-behavior: smooth;
+}
+
+.assistant-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.assistant-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.assistant-messages::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 3px;
+}
+
+.assistant-messages::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-muted);
+}
+
+/* ========================================
+   Assistant Message
+   ======================================== */
+
+.assistant-message {
+    display: flex;
+    gap: var(--spacing-3);
+    animation: message-fade-in 0.3s ease;
+}
+
+.assistant-message.user {
+    flex-direction: row-reverse;
+}
+
+@keyframes message-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========================================
+   Assistant Avatar
+   ======================================== */
+
+.assistant-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-lg);
+    flex-shrink: 0;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+}
+
+.assistant-message.user .assistant-avatar {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+/* ========================================
+   Assistant Bubble
+   ======================================== */
+
+.assistant-bubble {
+    background: var(--color-card);
+    padding: var(--spacing-4);
+    border-radius: var(--radius-xl);
+    max-width: 88%;
+    line-height: var(--line-height-relaxed);
+    font-size: var(--font-size-base);
+    border: 1px solid var(--color-border);
+}
+
+.assistant-message.user .assistant-bubble {
+    background: var(--color-primary);
+    color: white;
+    border-color: transparent;
+    border-bottom-right-radius: var(--radius-sm);
+}
+
+.assistant-message.assistant .assistant-bubble {
+    border-bottom-left-radius: var(--radius-sm);
+}
+
+.assistant-bubble code {
+    background: rgba(0, 120, 212, 0.15);
+    padding: 2px var(--spacing-2);
+    border-radius: var(--radius-sm);
+    font-size: 0.9em;
+    font-family: var(--font-family-mono);
+    color: var(--color-primary);
+}
+
+.assistant-bubble p {
+    margin: 0 0 var(--spacing-2) 0;
+}
+
+.assistant-bubble p:last-child {
+    margin-bottom: 0;
+}
+
+.assistant-bubble ul,
+.assistant-bubble ol {
+    margin: var(--spacing-2) 0;
+    padding-left: var(--spacing-5);
+}
+
+.assistant-bubble li {
+    margin-bottom: var(--spacing-1);
+}
+
+.assistant-examples {
+    list-style: none;
+    padding: 0;
+    margin: var(--spacing-3) 0 0;
+}
+
+.assistant-disclaimer {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    font-style: italic;
+    margin-top: var(--spacing-3);
+    padding-top: var(--spacing-2);
+    border-top: 1px solid var(--color-border);
+}
+
+.assistant-examples li {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-3);
+    margin-bottom: var(--spacing-2);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.assistant-examples li:hover {
+    background: var(--color-card);
+    border-color: var(--color-primary);
+    color: var(--color-text);
+}
+
+.assistant-examples li::before {
+    content: "→";
+    color: var(--color-primary);
+    font-weight: var(--font-weight-medium);
+}
+
+/* ========================================
+   Assistant Answer
+   ======================================== */
+
+.assistant-answer {
+    margin-bottom: var(--spacing-2);
+}
+
+/* ========================================
+   Referenced Slides
+   ======================================== */
+
+.assistant-slides {
+    margin-top: var(--spacing-4);
+    padding-top: var(--spacing-4);
+    border-top: 1px solid var(--color-border);
+}
+
+.assistant-slides-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-3);
+}
+
+.assistant-slides-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+}
+
+/* ========================================
+   Slide Card - Matches deck-builder
+   ======================================== */
+
+.assistant-slide-card {
+    display: flex;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    transition: all var(--transition-base);
+    cursor: pointer;
+}
+
+.assistant-slide-card:hover {
+    background: var(--color-card);
+    border-color: var(--color-primary);
+}
+
+.assistant-slide-thumb {
+    width: 80px;
+    height: 45px;
+    flex-shrink: 0;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--color-surface-alt);
+}
+
+.assistant-slide-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.assistant-slide-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xl);
+    color: var(--color-text-muted);
+}
+
+.assistant-slide-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+}
+
+.assistant-slide-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.assistant-slide-badge {
+    padding: 2px var(--spacing-2);
+    background: var(--color-primary);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: white;
+    text-transform: uppercase;
+}
+
+.assistant-slide-badge.build {
+    background: #0078D4;
+}
+
+.assistant-slide-badge.ignite {
+    background: #ff6d00;
+}
+
+.assistant-slide-num {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-medium);
+}
+
+.assistant-slide-title {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.assistant-slide-reason {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-relaxed);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ========================================
+   Slide Card Actions
+   ======================================== */
+
+.assistant-slide-actions {
+    display: flex;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-2);
+}
+
+.assistant-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    padding: var(--spacing-1) var(--spacing-2);
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.assistant-action-btn:hover {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.assistant-action-btn svg {
+    flex-shrink: 0;
+}
+
+/* ========================================
+   Follow-up Suggestions
+   ======================================== */
+
+.assistant-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-3);
+    padding-top: var(--spacing-3);
+    border-top: 1px solid var(--color-border);
+}
+
+.assistant-suggestion-btn {
+    padding: var(--spacing-2) var(--spacing-3);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    text-align: left;
+}
+
+.assistant-suggestion-btn:hover {
+    background: var(--color-card);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+/* ========================================
+   Typing Indicator
+   ======================================== */
+
+.assistant-typing {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+}
+
+.typing-status {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.typing-dots {
+    display: flex;
+    gap: 4px;
+}
+
+.typing-dots span {
+    width: 6px;
+    height: 6px;
+    background: var(--color-primary);
+    border-radius: var(--radius-full);
+    animation: typing-bounce 1.2s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+.typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing-bounce {
+    0%, 80%, 100% { 
+        transform: scale(0.7);
+        opacity: 0.4;
+    }
+    40% { 
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ========================================
+   Assistant Input Area
+   ======================================== */
+
+.assistant-input-area {
+    padding: var(--spacing-4);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-card);
+}
+
+.assistant-input-container {
+    display: flex;
+    gap: var(--spacing-3);
+}
+
+.assistant-input {
+    flex: 1;
+    padding: var(--spacing-3) var(--spacing-4);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+    outline: none;
+    transition: border-color var(--transition-base);
+}
+
+.assistant-input:focus {
+    border-color: var(--color-primary);
+}
+
+.assistant-input::placeholder {
+    color: var(--color-text-muted);
+}
+
+.assistant-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.assistant-send-btn {
+    width: 44px;
+    height: 44px;
+    background: var(--color-primary);
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-base);
+}
+
+.assistant-send-btn:hover {
+    background: var(--color-primary-dark);
+}
+
+.assistant-send-btn:disabled {
+    background: var(--color-border);
+    cursor: not-allowed;
+}
+
+.assistant-send-btn svg {
+    width: 20px;
+    height: 20px;
+    color: white;
+}
+
+/* ========================================
+   Toggle Button in Nav
+   ======================================== */
+
+.nav-btn.assistant-btn {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+}
+
+.nav-btn.assistant-btn:hover {
+    background: var(--color-primary-dark);
+}
+
+.nav-btn.assistant-btn.active {
+    background: var(--color-primary-dark);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ========================================
+   Responsive Adjustments
+   ======================================== */
+
+@media (max-width: 900px) {
+    .slide-assistant-section {
+        width: 100%;
+        border-left: none;
+    }
+    
+    body.assistant-open {
+        padding-right: 0;
+    }
+    
+    body.assistant-open .main-content,
+    body.assistant-open .hero,
+    body.assistant-open .favorites-section {
+        display: none;
+    }
+    
+    .assistant-slide-thumb {
+        width: 70px;
+        height: 40px;
+    }
+    
+    .assistant-bubble {
+        max-width: 92%;
+    }
+}
+
+@media (max-width: 480px) {
+    .slide-assistant-header {
+        padding: var(--spacing-3) var(--spacing-4);
+    }
+    
+    .assistant-messages {
+        padding: var(--spacing-4);
+    }
+    
+    .assistant-input-area {
+        padding: var(--spacing-3);
+    }
+    
+    .assistant-slide-card {
+        flex-direction: column;
+        gap: var(--spacing-2);
+    }
+    
+    .assistant-slide-thumb {
+        width: 100%;
+        height: 100px;
+    }
+}

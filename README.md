@@ -110,7 +110,8 @@ AZURE_SEARCH_INDEX_NAME=slidefinder
 ### Run the Application
 
 ```bash
-python main.py
+# From project root directory
+python -m uvicorn src.main:app --host 0.0.0.0 --port 7004 --reload
 ```
 
 The app will be available at `http://localhost:7004`
@@ -123,41 +124,68 @@ The app will be available at `http://localhost:7004`
 
 ```
 slidefinder/
-├── api/                    # FastAPI route handlers
-│   ├── search.py          # Search endpoints
-│   ├── slides.py          # Slide info endpoints
-│   └── deck_builder.py    # Deck builder endpoints
-├── services/
-│   ├── search_service.py  # Search service layer
-│   ├── azure_search_service.py
-│   ├── pptx_merger.py     # PPTX generation
-│   └── deck_builder/      # AI deck builder
-│       ├── agents.py      # LLM agents
-│       ├── workflow.py    # Multi-agent workflow
-│       ├── prompts.py     # System prompts
-│       └── executors/     # Agent executors
-├── indexer/               # Data indexing pipeline
-│   ├── cli.py            # CLI for indexing
-│   ├── fetcher.py        # Session data fetcher
-│   ├── slide_indexer.py  # PPTX content extraction
-│   ├── thumbnails.py     # Thumbnail generation
-│   └── ai_search.py      # Azure AI Search upload
-├── static/               # Frontend assets
-│   └── js/              # JavaScript modules
-├── templates/           # HTML templates
-├── config/             # Configuration
-├── models/             # Data models
-└── tests/              # Test suite
+├── src/                       # Main application code
+│   ├── main.py               # FastAPI entry point
+│   ├── api/
+│   │   └── routes/           # API route handlers
+│   │       ├── search.py     # Search endpoints
+│   │       ├── slides.py     # Slide info endpoints
+│   │       └── deck_builder.py
+│   ├── core/                 # Configuration & utilities
+│   │   ├── config.py         # Settings (pydantic-settings)
+│   │   └── logging.py        # Logging setup
+│   ├── models/               # Pydantic data models
+│   │   ├── slide.py          # SlideInfo, SlideSearchResult
+│   │   └── deck.py           # DeckSession
+│   ├── services/
+│   │   ├── search/           # Search service
+│   │   │   └── azure.py      # Azure AI Search implementation
+│   │   ├── pptx/             # PPTX generation
+│   │   │   └── merger.py     # Slide merger
+│   │   └── deck_builder/     # AI deck builder
+│   │       ├── service.py    # Main service
+│   │       ├── agents.py     # WorkflowOrchestrator
+│   │       ├── workflow.py   # Multi-agent workflow
+│   │       ├── prompts.py    # System prompts
+│   │       ├── models.py     # Pydantic models
+│   │       ├── state.py      # Workflow state
+│   │       ├── helpers.py    # Utility functions
+│   │       ├── events.py     # SSE event factories
+│   │       ├── debug.py      # Debug event emitter
+│   │       └── executors/    # Workflow executors
+│   │           ├── search.py
+│   │           ├── offer.py
+│   │           ├── critique.py
+│   │           └── judge.py
+│   └── web/                  # Frontend assets
+│       ├── static/           # CSS, JavaScript
+│       └── templates/        # HTML templates
+├── indexer/                  # Data indexing pipeline
+│   ├── cli.py               # CLI for indexing
+│   ├── fetcher.py           # Session data fetcher
+│   ├── slide_indexer.py     # PPTX content extraction
+│   ├── thumbnails.py        # Thumbnail generation
+│   └── ai_search.py         # Azure AI Search upload
+├── tests/                    # Test suite
+├── scripts/                  # Shell scripts
+├── data/                     # Runtime data (ppts, thumbnails, index)
+├── infra/                    # Azure Bicep infrastructure
+├── Dockerfile
+├── requirements.txt
+└── azure.yaml               # Azure Developer CLI config
 ```
 
 ### Running Tests
 
 ```bash
 # Run Python tests
-./run_tests.sh
+python -m pytest tests/ -v
+
+# Or use the script
+./scripts/run_tests.sh
 
 # Run JavaScript tests
-cd static && npm test
+cd src/web/static && npm test
 ```
 
 ### Indexing Pipeline
@@ -179,10 +207,10 @@ python -m indexer.cli --step 4  # Verify search
 
 ```bash
 # Build the image
-docker build -t slidefinder .
+docker build -t slidefinder-app .
 
 # Run the container
-docker run -p 7004:7004 --env-file .env slidefinder
+docker run -d -p 7004:7004 --env-file .env -v $(pwd)/data:/app/data slidefinder-app
 ```
 
 ### Azure Developer CLI (azd)

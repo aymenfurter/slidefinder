@@ -5,9 +5,9 @@ import pytest
 from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 
-from services.azure_search_service import AzureSearchService
-from services.search_service import get_search_service
-from models.slide import SlideSearchResult, SlideInfo
+from src.services.search.azure import AzureSearchService
+from src.services.search import get_search_service
+from src.models.slide import SlideSearchResult, SlideInfo
 
 
 class TestAzureSearchService:
@@ -31,7 +31,7 @@ class TestAzureSearchService:
         mock_settings.ppts_dir = tmp_path / "empty_ppts"
         mock_settings.ppts_dir.mkdir(parents=True)
         
-        with patch("services.azure_search_service.get_settings", return_value=mock_settings):
+        with patch("src.services.search.azure.get_settings", return_value=mock_settings):
             service = AzureSearchService()
             sessions = service.get_available_pptx_sessions()
             
@@ -45,7 +45,7 @@ class TestAzureSearchService:
         (ppts_dir / "BRK212.pptx").touch()
         mock_settings.ppts_dir = ppts_dir
         
-        with patch("services.azure_search_service.get_settings", return_value=mock_settings):
+        with patch("src.services.search.azure.get_settings", return_value=mock_settings):
             service = AzureSearchService()
             sessions = service.get_available_pptx_sessions()
             
@@ -58,7 +58,7 @@ class TestAzureSearchService:
         ppts_dir.mkdir()
         mock_settings.ppts_dir = ppts_dir
         
-        with patch("services.azure_search_service.get_settings", return_value=mock_settings):
+        with patch("src.services.search.azure.get_settings", return_value=mock_settings):
             service = AzureSearchService()
             
             # First call caches result
@@ -78,7 +78,7 @@ class TestAzureSearchService:
     
     def test_index_exists_when_configured(self, mock_settings, tmp_path):
         """Test that index_exists returns True when Azure Search is configured."""
-        with patch("services.azure_search_service.get_settings", return_value=mock_settings):
+        with patch("src.services.search.azure.get_settings", return_value=mock_settings):
             service = AzureSearchService()
             assert service.index_exists is True
     
@@ -86,7 +86,7 @@ class TestAzureSearchService:
         """Test that index_exists returns False when Azure Search is not configured."""
         mock_settings.has_azure_search = False
         
-        with patch("services.azure_search_service.get_settings", return_value=mock_settings):
+        with patch("src.services.search.azure.get_settings", return_value=mock_settings):
             service = AzureSearchService()
             assert service.index_exists is False
 
@@ -106,12 +106,11 @@ class TestSearchServiceFactory:
         mock_settings.search_results_limit = 100
         
         # Reset singleton
-        import services.search_service as search_module
-        import services.azure_search_service as azure_module
+        import src.services.search as search_module
+        import src.services.search.azure as azure_module
         search_module._search_service = None
         azure_module._azure_search_service = None
         
-        with patch("services.search_service.get_settings", return_value=mock_settings):
-            with patch("services.azure_search_service.get_settings", return_value=mock_settings):
-                service = get_search_service()
-                assert isinstance(service, AzureSearchService)
+        with patch("src.services.search.azure.get_settings", return_value=mock_settings):
+            service = get_search_service()
+            assert isinstance(service, AzureSearchService)

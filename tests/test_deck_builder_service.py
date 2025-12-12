@@ -31,13 +31,13 @@ class TestDeckBuilderWorkflow:
     
     def test_service_initialization(self, mock_settings, mock_search_service):
         """Test that the service initializes correctly."""
-        with patch("services.deck_builder.service.get_settings", return_value=mock_settings), \
-             patch("services.deck_builder.service.get_search_service", return_value=mock_search_service), \
-             patch("services.deck_builder.agents.get_search_service", return_value=mock_search_service), \
-             patch("services.deck_builder.agents.DefaultAzureCredential"), \
-             patch("services.deck_builder.agents.AzureOpenAIChatClient"):
+        with patch("src.services.deck_builder.service.get_settings", return_value=mock_settings), \
+             patch("src.services.deck_builder.service.get_search_service", return_value=mock_search_service), \
+             patch("src.services.deck_builder.agents.get_search_service", return_value=mock_search_service), \
+             patch("src.services.deck_builder.agents.DefaultAzureCredential"), \
+             patch("src.services.deck_builder.agents.AzureOpenAIChatClient"):
             
-            from services.deck_builder import DeckBuilderService
+            from src.services.deck_builder import DeckBuilderService
             
             service = DeckBuilderService()
             assert service is not None
@@ -48,7 +48,7 @@ class TestPydanticModels:
     
     def test_slide_outline_item(self):
         """Test SlideOutlineItem model."""
-        from services.deck_builder.models import SlideOutlineItem
+        from src.services.deck_builder.models import SlideOutlineItem
         
         item = SlideOutlineItem(
             position=1,
@@ -64,7 +64,7 @@ class TestPydanticModels:
     
     def test_presentation_outline(self):
         """Test PresentationOutline model."""
-        from services.deck_builder.models import PresentationOutline, SlideOutlineItem
+        from src.services.deck_builder.models import PresentationOutline, SlideOutlineItem
         
         outline = PresentationOutline(
             title="Test Presentation",
@@ -79,7 +79,7 @@ class TestPydanticModels:
     
     def test_critique_result(self):
         """Test CritiqueResult model."""
-        from services.deck_builder.models import CritiqueResult
+        from src.services.deck_builder.models import CritiqueResult
         
         result = CritiqueResult(
             approved=True,
@@ -97,7 +97,7 @@ class TestHelperFunctions:
     
     def test_format_slides_summary(self):
         """Test format_slides_summary function."""
-        from services.deck_builder.helpers import format_slides_summary
+        from src.services.deck_builder.helpers import format_slides_summary
         
         slides = [
             {"session_code": "TEST1", "slide_number": 1, "title": "Test", "content": "Content"}
@@ -109,7 +109,7 @@ class TestHelperFunctions:
     
     def test_format_slides_summary_with_limit(self):
         """Test format_slides_summary respects max_slides limit."""
-        from services.deck_builder.helpers import format_slides_summary
+        from src.services.deck_builder.helpers import format_slides_summary
         
         slides = [
             {"session_code": f"TEST{i}", "slide_number": i, "title": f"Test {i}", "content": "Content"}
@@ -123,7 +123,7 @@ class TestHelperFunctions:
     
     def test_format_candidates(self):
         """Test format_candidates function."""
-        from services.deck_builder.helpers import format_candidates
+        from src.services.deck_builder.helpers import format_candidates
         
         candidates = [
             {"session_code": "TEST1", "slide_number": 1, "title": "Test", "content": "Content"}
@@ -135,7 +135,7 @@ class TestHelperFunctions:
     
     def test_format_candidates_with_session_title(self):
         """Test format_candidates includes session title when present."""
-        from services.deck_builder.helpers import format_candidates
+        from src.services.deck_builder.helpers import format_candidates
         
         candidates = [
             {
@@ -152,7 +152,7 @@ class TestHelperFunctions:
     
     def test_compute_source_decks(self):
         """Test compute_source_decks function."""
-        from services.deck_builder.helpers import compute_source_decks
+        from src.services.deck_builder.helpers import compute_source_decks
         
         deck = [
             {"session_code": "TEST1", "slide_number": 1},
@@ -174,7 +174,7 @@ class TestHelperFunctions:
     
     def test_compute_source_decks_tracks_slides_used(self):
         """Test compute_source_decks tracks which slides are used."""
-        from services.deck_builder.helpers import compute_source_decks
+        from src.services.deck_builder.helpers import compute_source_decks
         
         deck = [
             {"session_code": "TEST1", "slide_number": 1},
@@ -193,21 +193,21 @@ class TestHelperFunctions:
     
     def test_load_slide_thumbnail_not_exists(self, tmp_path):
         """Test load_slide_thumbnail returns None when file doesn't exist."""
-        from services.deck_builder.helpers import load_slide_thumbnail
+        from src.services.deck_builder.helpers import load_slide_thumbnail
         from unittest.mock import patch, Mock
         
         mock_settings = Mock()
         mock_settings.thumbnails_dir = tmp_path / "thumbnails"
         mock_settings.thumbnails_dir.mkdir()
         
-        with patch("services.deck_builder.helpers.get_settings", return_value=mock_settings):
+        with patch("src.services.deck_builder.helpers.get_settings", return_value=mock_settings):
             result = load_slide_thumbnail("NONEXISTENT", 1)
         
         assert result is None
     
     def test_load_slide_thumbnail_exists(self, tmp_path):
         """Test load_slide_thumbnail returns bytes when file exists."""
-        from services.deck_builder.helpers import load_slide_thumbnail
+        from src.services.deck_builder.helpers import load_slide_thumbnail
         from unittest.mock import patch, Mock
         
         mock_settings = Mock()
@@ -218,7 +218,7 @@ class TestHelperFunctions:
         thumb_path = mock_settings.thumbnails_dir / "TEST1_1.png"
         thumb_path.write_bytes(b"fake png data")
         
-        with patch("services.deck_builder.helpers.get_settings", return_value=mock_settings):
+        with patch("src.services.deck_builder.helpers.get_settings", return_value=mock_settings):
             result = load_slide_thumbnail("TEST1", 1)
         
         assert result == b"fake png data"
@@ -252,7 +252,7 @@ class TestSlideSelectionModel:
     
     def test_slide_selection(self):
         """Test SlideSelection model creation."""
-        from services.deck_builder.models import SlideSelection
+        from src.services.deck_builder.models import SlideSelection
         
         selection = SlideSelection(
             session_code="BRK211",
@@ -266,7 +266,7 @@ class TestSlideSelectionModel:
     
     def test_slide_selection_minimal(self):
         """Test SlideSelection with minimal data."""
-        from services.deck_builder.models import SlideSelection
+        from src.services.deck_builder.models import SlideSelection
         
         selection = SlideSelection(
             session_code="TEST",
@@ -282,7 +282,7 @@ class TestBuildMultimodalMessage:
     
     def test_build_multimodal_message_text_only(self):
         """Test building a message with text only."""
-        from services.deck_builder.helpers import build_multimodal_message
+        from src.services.deck_builder.helpers import build_multimodal_message
         
         msg = build_multimodal_message("Hello world", [], include_images=False)
         
@@ -291,7 +291,7 @@ class TestBuildMultimodalMessage:
     
     def test_build_multimodal_message_with_slides_no_images(self):
         """Test building a message with slides but no image loading."""
-        from services.deck_builder.helpers import build_multimodal_message
+        from src.services.deck_builder.helpers import build_multimodal_message
         
         slides = [
             {"session_code": "TEST1", "slide_number": 1}

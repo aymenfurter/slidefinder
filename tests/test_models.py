@@ -3,8 +3,8 @@ Unit tests for Pydantic models.
 """
 import pytest
 
-from models.slide import SlideInfo, SlideSearchResult
-from models.deck import DeckSession
+from src.models.slide import SlideInfo, SlideSearchResult
+from src.models.deck import DeckSession
 
 
 class TestSlideInfo:
@@ -153,7 +153,7 @@ class TestAPIRequestModels:
     
     def test_chat_request_valid(self):
         """Test valid chat request."""
-        from api.deck_builder import ChatRequest
+        from src.api.routes.deck_builder import ChatRequest
         
         request = ChatRequest(message="Build a deck about AI")
         
@@ -162,7 +162,7 @@ class TestAPIRequestModels:
     
     def test_chat_request_with_session(self):
         """Test chat request with session ID."""
-        from api.deck_builder import ChatRequest
+        from src.api.routes.deck_builder import ChatRequest
         
         request = ChatRequest(
             message="Add more slides",
@@ -173,14 +173,14 @@ class TestAPIRequestModels:
     
     def test_chat_request_validation(self):
         """Test chat request validation."""
-        from api.deck_builder import ChatRequest
+        from src.api.routes.deck_builder import ChatRequest
         
         with pytest.raises(ValueError):
             ChatRequest(message="")  # Too short
     
     def test_outline_slide_item(self):
         """Test OutlineSlideItem model."""
-        from api.deck_builder import OutlineSlideItem
+        from src.api.routes.deck_builder import OutlineSlideItem
         
         item = OutlineSlideItem(
             position=1,
@@ -195,7 +195,7 @@ class TestAPIRequestModels:
     
     def test_confirm_outline_request(self):
         """Test ConfirmOutlineRequest model."""
-        from api.deck_builder import ConfirmOutlineRequest, OutlineSlideItem
+        from src.api.routes.deck_builder import ConfirmOutlineRequest, OutlineSlideItem
         
         request = ConfirmOutlineRequest(
             session_id="test-123",

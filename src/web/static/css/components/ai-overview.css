@@ -1,0 +1,145 @@
+/**
+ * AI Overview Component Styles
+ * Displays an AI-generated summary at the top of search results.
+ */
+
+.ai-overview-container {
+    margin-bottom: 1.5rem;
+}
+
+.ai-overview-container.hidden {
+    display: none;
+}
+
+.ai-overview-box {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    animation: fadeInSlide 0.3s ease-out;
+}
+
+.ai-overview-box.loading {
+    border-color: rgba(16, 185, 129, 0.15);
+}
+
+.ai-overview-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.ai-overview-icon {
+    font-size: 1.1rem;
+}
+
+.ai-overview-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--success);
+}
+
+.ai-overview-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(16, 185, 129, 0.2);
+    border-top-color: var(--success);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-left: auto;
+}
+
+.ai-overview-content {
+    color: var(--text);
+    line-height: 1.6;
+    transition: opacity 0.2s ease-out;
+}
+
+.ai-overview-content.transitioning {
+    opacity: 0;
+}
+
+.ai-overview-content p {
+    margin: 0;
+    animation: contentFadeIn 0.3s ease-out;
+}
+
+.ai-overview-content strong {
+    color: var(--text);
+    font-weight: 600;
+}
+
+@keyframes contentFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Skeleton loading animation */
+.ai-overview-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.skeleton-line {
+    height: 1rem;
+    background: linear-gradient(
+        90deg,
+        rgba(16, 185, 129, 0.1) 0%,
+        rgba(16, 185, 129, 0.2) 50%,
+        rgba(16, 185, 129, 0.1) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+.skeleton-line.short {
+    width: 60%;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+@keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+    .ai-overview-box {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(59, 130, 246, 0.12) 100%);
+        border-color: rgba(16, 185, 129, 0.25);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .ai-overview-box {
+        padding: 0.875rem 1rem;
+    }
+    
+    .ai-overview-content {
+        font-size: 0.9rem;
+    }
+}

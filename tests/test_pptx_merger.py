@@ -6,7 +6,7 @@ import zipfile
 from pathlib import Path
 from unittest.mock import patch, Mock
 from pptx import Presentation
-from services.pptx_merger import PPTXMerger
+from src.services.pptx.merger import PPTXMerger
 
 @pytest.fixture
 def test_pptx_files(tmp_path):

@@ -1,0 +1,444 @@
+/**
+ * Card Components
+ * ================
+ * Slide cards and related card styles.
+ */
+
+/* ========================================
+   Base Card
+   ======================================== */
+
+.card {
+    background: var(--color-card);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.card:hover {
+    transform: translateY(-4px);
+}
+
+.card.build:hover {
+    border-color: var(--color-build);
+    box-shadow: 0 12px 40px rgba(0, 120, 212, 0.15);
+}
+
+.card.ignite:hover {
+    border-color: var(--color-ignite);
+    box-shadow: 0 12px 40px rgba(255, 109, 0, 0.15);
+}
+
+/* ========================================
+   Slide Preview
+   ======================================== */
+
+.slide-preview {
+    aspect-ratio: 16/9;
+    background: var(--color-bg-secondary);
+    overflow: hidden;
+    position: relative;
+}
+
+.slide-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #1a1a1a;
+}
+
+.slide-badge {
+    position: absolute;
+    top: var(--spacing-3);
+    right: var(--spacing-3);
+    background: rgba(0, 0, 0, 0.75);
+    color: white;
+    padding: var(--spacing-2) var(--spacing-3);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+}
+
+.no-thumb-badge {
+    position: absolute;
+    bottom: var(--spacing-3);
+    left: var(--spacing-3);
+    background: rgba(245, 158, 11, 0.9);
+    color: #000;
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* ========================================
+   Slide Preview Fallback
+   ======================================== */
+
+.slide-preview-fallback {
+    padding: var(--spacing-5);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.preview-title {
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-md);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-2);
+}
+
+.preview-text {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-base);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+}
+
+/* ========================================
+   Card Body
+   ======================================== */
+
+.card-body {
+    padding: var(--spacing-5);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    margin-bottom: var(--spacing-3);
+}
+
+.event-badge {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    padding: var(--spacing-1) var(--spacing-3);
+    border-radius: var(--radius-sm);
+}
+
+.event-badge.build {
+    background: rgba(0, 120, 212, 0.15);
+    color: var(--color-build);
+}
+
+.event-badge.ignite {
+    background: rgba(230, 81, 0, 0.15);
+    color: var(--color-ignite);
+}
+
+.session-code {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
+}
+
+/* ========================================
+   Card Title
+   ======================================== */
+
+.card-title {
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-tight);
+    margin-bottom: var(--spacing-3);
+    color: var(--color-text);
+    text-decoration: none;
+    display: block;
+}
+
+.card-title:hover {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.card.ignite .card-title:hover {
+    color: var(--color-ignite);
+}
+
+/* ========================================
+   Card Snippet
+   ======================================== */
+
+.card-snippet {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-relaxed);
+    flex: 1;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+.card-snippet b,
+.card-snippet strong {
+    color: var(--color-warning);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* ========================================
+   Card Actions
+   ======================================== */
+
+.card-actions {
+    margin-top: var(--spacing-4);
+    padding-top: var(--spacing-4);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    gap: var(--spacing-3);
+    flex-wrap: wrap;
+}
+
+.card.build .action-btn:hover {
+    background: var(--color-build);
+    border-color: var(--color-build);
+    color: white;
+}
+
+.card.ignite .action-btn:hover {
+    background: var(--color-ignite);
+    border-color: var(--color-ignite);
+    color: white;
+}
+
+/* ========================================
+   Search Result Card (mini)
+   ======================================== */
+
+.search-result-card {
+    background: var(--color-card);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    animation: card-pop 0.3s ease-out backwards;
+}
+
+.search-result-card:nth-child(1) { animation-delay: 0.05s; }
+.search-result-card:nth-child(2) { animation-delay: 0.1s; }
+.search-result-card:nth-child(3) { animation-delay: 0.15s; }
+.search-result-card:nth-child(4) { animation-delay: 0.2s; }
+
+.search-result-card img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+}
+
+.search-result-info {
+    padding: var(--spacing-2);
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-xs);
+}
+
+.search-result-code {
+    color: var(--color-text);
+    font-weight: var(--font-weight-medium);
+}
+
+.search-result-num {
+    color: var(--color-text-secondary);
+}
+
+/* ========================================
+   Saved Deck Card
+   ======================================== */
+
+.saved-deck-card {
+    background: var(--color-card);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.saved-deck-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-xl);
+}
+
+.saved-deck-preview {
+    position: relative;
+    aspect-ratio: 16/7;
+    background: var(--color-bg-secondary);
+    overflow: hidden;
+}
+
+.saved-deck-thumb {
+    position: absolute;
+    width: 60%;
+    height: 80%;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+}
+
+.saved-deck-thumb.thumb-0 { left: 10%; top: 10%; z-index: 3; }
+.saved-deck-thumb.thumb-1 { left: 20%; top: 15%; z-index: 2; opacity: 0.7; }
+.saved-deck-thumb.thumb-2 { left: 30%; top: 20%; z-index: 1; opacity: 0.4; }
+
+.saved-deck-slide-count {
+    position: absolute;
+    bottom: var(--spacing-3);
+    right: var(--spacing-3);
+    background: rgba(0, 0, 0, 0.75);
+    color: white;
+    padding: var(--spacing-2) var(--spacing-3);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+}
+
+.saved-deck-info {
+    padding: var(--spacing-4);
+}
+
+.saved-deck-name {
+    margin: 0 0 var(--spacing-1) 0;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+}
+
+.saved-deck-time {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.saved-deck-actions {
+    display: flex;
+    gap: var(--spacing-2);
+    padding: var(--spacing-3) var(--spacing-4);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg-secondary);
+}
+
+.saved-deck-action-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-3);
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.saved-deck-action-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.saved-deck-action-btn:hover {
+    border-color: var(--color-text-secondary);
+    color: var(--color-text);
+}
+
+.saved-deck-action-btn.load-btn:hover {
+    border-color: var(--color-success);
+    color: var(--color-success);
+    background: rgba(var(--color-success-rgb), 0.1);
+}
+
+.saved-deck-action-btn.edit-btn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: rgba(var(--color-primary-rgb), 0.1);
+}
+
+.saved-deck-action-btn.delete-btn:hover {
+    border-color: var(--color-favorite);
+    color: var(--color-favorite);
+    background: rgba(var(--color-error-rgb), 0.1);
+}
+
+/* ========================================
+   Card Animations
+   ======================================== */
+
+@keyframes card-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ========================================
+   Skeleton Loading Cards
+   ======================================== */
+
+.skeleton-card {
+    pointer-events: none;
+}
+
+.skeleton-card .slide-preview {
+    aspect-ratio: 16/9;
+}
+
+.skeleton-card .card-body {
+    padding: var(--spacing-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+}
+
+.skeleton-card .card-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.skeleton-card .card-title {
+    margin: 0;
+}
+
+.skeleton-card .card-snippet {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.skeleton-shimmer {
+    background: linear-gradient(
+        90deg,
+        var(--color-bg-secondary) 0%,
+        rgba(127, 186, 0, 0.15) 25%,
+        rgba(0, 188, 242, 0.15) 50%,
+        rgba(0, 120, 212, 0.15) 75%,
+        var(--color-bg-secondary) 100%
+    );
+    background-size: 400% 100%;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: var(--radius-md);
+}
+
+@keyframes skeleton-shimmer {
+    0% {
+        background-position: 100% 0;
+    }
+    100% {
+        background-position: -100% 0;
+    }
+}

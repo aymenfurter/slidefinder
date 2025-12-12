@@ -1,0 +1,447 @@
+/**
+ * Button Components
+ * =================
+ * All button styles including base, variants, and states.
+ */
+
+/* ========================================
+   Base Button
+   ======================================== */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-3) var(--spacing-4);
+    border: none;
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+.btn svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+/* ========================================
+   Button Variants
+   ======================================== */
+
+/* Primary */
+.btn-primary {
+    background: var(--color-primary);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--color-primary-dark);
+}
+
+/* Secondary */
+.btn-secondary {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: var(--color-card);
+    border-color: var(--color-primary);
+}
+
+/* Ghost */
+.btn-ghost {
+    background: transparent;
+    color: var(--color-text-secondary);
+}
+
+.btn-ghost:hover:not(:disabled) {
+    background: var(--color-bg-secondary);
+    color: var(--color-text);
+}
+
+/* Success */
+.btn-success {
+    background: var(--color-success);
+    color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+    background: #0d9668;
+}
+
+/* Danger */
+.btn-danger {
+    background: var(--color-error);
+    color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: #dc2626;
+}
+
+/* Gradient */
+.btn-gradient {
+    background: linear-gradient(135deg, var(--color-agent-purple) 0%, var(--color-agent-blue) 100%);
+    color: white;
+}
+
+.btn-gradient:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+/* ========================================
+   Button Sizes
+   ======================================== */
+
+.btn-sm {
+    padding: var(--spacing-2) var(--spacing-3);
+    font-size: var(--font-size-sm);
+}
+
+.btn-lg {
+    padding: var(--spacing-4) var(--spacing-6);
+    font-size: var(--font-size-lg);
+}
+
+/* ========================================
+   Icon Button
+   ======================================== */
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: var(--radius-md);
+}
+
+.btn-icon.btn-sm {
+    width: 28px;
+    height: 28px;
+}
+
+.btn-icon.btn-lg {
+    width: 44px;
+    height: 44px;
+}
+
+.btn-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* ========================================
+   Navigation Button
+   ======================================== */
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-3) var(--spacing-4);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.nav-btn:hover {
+    background: var(--color-card);
+    border-color: var(--color-primary);
+}
+
+.nav-btn.active {
+    background: rgba(var(--color-primary-rgb), 0.15);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.nav-btn.ai-btn.active {
+    background: rgba(var(--color-success-rgb), 0.15);
+    border-color: var(--color-success);
+    color: var(--color-success);
+}
+
+.nav-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.nav-btn .nav-icon {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+/* ========================================
+   Badge (for buttons)
+   ======================================== */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    padding: 2px 6px;
+    background: var(--color-favorite);
+    color: white;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    border-radius: var(--radius-lg);
+    text-align: center;
+}
+
+.badge-primary {
+    background: var(--color-primary);
+}
+
+.badge-success {
+    background: var(--color-success);
+}
+
+.badge-warning {
+    background: var(--color-warning);
+}
+
+/* ========================================
+   Action Button (Card actions)
+   ======================================== */
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-3);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    transition: all var(--transition-base);
+}
+
+.action-btn:hover {
+    text-decoration: none;
+}
+
+.action-btn:active {
+    transform: scale(0.97);
+}
+
+/* ========================================
+   Filter Chip
+   ======================================== */
+
+.filter-chip {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-3) var(--spacing-4);
+    background: var(--color-bg-secondary);
+    border: 2px solid transparent;
+    border-radius: var(--radius-lg);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.filter-chip:hover {
+    background: var(--color-card);
+    color: var(--color-text);
+}
+
+.filter-chip .check-icon {
+    width: 14px;
+    height: 14px;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all var(--transition-base);
+}
+
+.filter-chip.active .check-icon {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.filter-chip.active.build {
+    background: rgba(var(--color-primary-rgb), 0.15);
+    border-color: var(--color-build);
+    color: var(--color-build);
+}
+
+.filter-chip.active.ignite {
+    background: rgba(255, 109, 0, 0.15);
+    border-color: var(--color-ignite);
+    color: var(--color-ignite);
+}
+
+/* ========================================
+   Save Button (Heart)
+   ======================================== */
+
+.save-btn {
+    position: absolute;
+    top: var(--spacing-3);
+    left: var(--spacing-3);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.75);
+    border: none;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    z-index: var(--z-base);
+}
+
+.save-btn svg {
+    width: 18px;
+    height: 18px;
+    color: white;
+}
+
+.save-btn:hover {
+    background: rgba(239, 68, 68, 0.9);
+    transform: scale(1.1);
+}
+
+.save-btn.saved {
+    background: var(--color-favorite);
+}
+
+/* ========================================
+   Sample Query Button
+   ======================================== */
+
+.sample-query-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    width: 100%;
+    padding: var(--spacing-3) var(--spacing-4);
+    margin-bottom: var(--spacing-2);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    text-align: left;
+    transition: all var(--transition-base);
+}
+
+.sample-query-btn:hover {
+    background: var(--color-bg-secondary);
+    border-color: var(--color-primary);
+    transform: translateX(4px);
+}
+
+.sample-query-btn:last-child {
+    margin-bottom: 0;
+}
+
+.sample-icon {
+    font-size: var(--font-size-2xl);
+    flex-shrink: 0;
+}
+
+.sample-text {
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    line-height: var(--line-height-tight);
+}
+
+/* ========================================
+   Outline Buttons
+   ======================================== */
+
+.outline-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-3) var(--spacing-5);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    border: none;
+}
+
+.outline-confirm-btn {
+    background: linear-gradient(135deg, var(--color-agent-purple) 0%, var(--color-agent-blue) 100%);
+    color: white;
+}
+
+.outline-confirm-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+.outline-confirm-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.outline-add-slide-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    width: 100%;
+    padding: var(--spacing-3);
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px dashed rgba(139, 92, 246, 0.3);
+    border-radius: var(--radius-md);
+    color: rgba(139, 92, 246, 0.8);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.outline-add-slide-btn:hover {
+    background: rgba(139, 92, 246, 0.2);
+    border-color: rgba(139, 92, 246, 0.5);
+}
+
+.outline-slide-remove-btn {
+    background: rgba(239, 68, 68, 0.15);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-2);
+    cursor: pointer;
+    color: var(--color-favorite);
+    opacity: 0.6;
+    transition: opacity var(--transition-base);
+}
+
+.outline-slide-remove-btn:hover {
+    opacity: 1;
+}

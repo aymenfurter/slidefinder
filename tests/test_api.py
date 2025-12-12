@@ -6,9 +6,9 @@ from unittest.mock import Mock, patch, AsyncMock
 from fastapi.testclient import TestClient
 from fastapi import FastAPI
 
-from api.search import router as search_router
-from api.deck_builder import router as deck_builder_router
-from api.slides import router as slides_router
+from src.api.routes.search import router as search_router
+from src.api.routes.deck_builder import router as deck_builder_router
+from src.api.routes.slides import router as slides_router
 
 
 @pytest.fixture
@@ -46,9 +46,9 @@ class TestSearchAPI:
         mock_result.score = 1.5
         
         mock_service = Mock()
-        mock_service.search.return_value = ([mock_result], 15.5)
+        mock_service.search.return_value = ([mock_result], 15.5, None)
         
-        with patch("api.search.get_search_service", return_value=mock_service):
+        with patch("src.api.routes.search.get_search_service", return_value=mock_service):
             response = client.get("/api/search?q=test")
         
         assert response.status_code == 200
@@ -67,9 +67,9 @@ class TestSearchAPI:
     def test_search_no_results(self, client):
         """Test search with no results."""
         mock_service = Mock()
-        mock_service.search.return_value = ([], 5.0)
+        mock_service.search.return_value = ([], 5.0, None)
         
-        with patch("api.search.get_search_service", return_value=mock_service):
+        with patch("src.api.routes.search.get_search_service", return_value=mock_service):
             response = client.get("/api/search?q=xyznonexistent")
         
         assert response.status_code == 200
@@ -97,7 +97,7 @@ class TestSlidesAPI:
         mock_service = Mock()
         mock_service.get_slide_info.return_value = mock_info
         
-        with patch("api.slides.get_search_service", return_value=mock_service):
+        with patch("src.api.routes.slides.get_search_service", return_value=mock_service):
             response = client.get("/api/slides/BRK211/1")
         
         assert response.status_code == 200
@@ -109,7 +109,7 @@ class TestSlidesAPI:
         mock_service = Mock()
         mock_service.get_slide_info.return_value = None
         
-        with patch("api.slides.get_search_service", return_value=mock_service):
+        with patch("src.api.routes.slides.get_search_service", return_value=mock_service):
             response = client.get("/api/slides/INVALID/999")
         
         assert response.status_code == 404
@@ -133,7 +133,7 @@ class TestDeckBuilderAPI:
         
         mock_deck_builder.process_message_stream = mock_stream
         
-        with patch("api.deck_builder.get_deck_builder_service", return_value=mock_deck_builder):
+        with patch("src.api.routes.deck_builder.get_deck_builder_service", return_value=mock_deck_builder):
             response = client.post("/api/deck-builder/chat", json={
                 "message": "Build a deck about AI"
             })
@@ -159,7 +159,7 @@ class TestDeckBuilderChatEndpoint:
         
         mock_deck_builder.process_message_stream = mock_stream
         
-        with patch("api.deck_builder.get_deck_builder_service", return_value=mock_deck_builder):
+        with patch("src.api.routes.deck_builder.get_deck_builder_service", return_value=mock_deck_builder):
             response = client.post("/api/deck-builder/chat", json={
                 "message": "Build a deck about AI"
             })
@@ -171,8 +171,8 @@ class TestDeckBuilderChatEndpoint:
     
     def test_chat_with_session_id(self, client):
         """Test chat with existing session ID."""
-        from api.deck_builder import deck_sessions
-        from models.deck import DeckSession
+        from src.api.routes.deck_builder import deck_sessions
+        from src.models.deck import DeckSession
         
         # Create a session
         session = DeckSession(session_id="test-session-123")
@@ -185,7 +185,7 @@ class TestDeckBuilderChatEndpoint:
         
         mock_deck_builder.process_message_stream = mock_stream
         
-        with patch("api.deck_builder.get_deck_builder_service", return_value=mock_deck_builder):
+        with patch("src.api.routes.deck_builder.get_deck_builder_service", return_value=mock_deck_builder):
             response = client.post("/api/deck-builder/chat", json={
                 "message": "Add more slides",
                 "session_id": "test-session-123"
@@ -228,7 +228,7 @@ class TestSessionAPI:
         mock_service = Mock()
         mock_service.get_session_slides.return_value = ([mock_result], mock_session_info)
         
-        with patch("api.search.get_search_service", return_value=mock_service):
+        with patch("src.api.routes.search.get_search_service", return_value=mock_service):
             response = client.get("/api/session/BRK211")
         
         assert response.status_code == 200
@@ -242,7 +242,7 @@ class TestSessionAPI:
         mock_service = Mock()
         mock_service.get_session_slides.return_value = ([], None)
         
-        with patch("api.search.get_search_service", return_value=mock_service):
+        with patch("src.api.routes.search.get_search_service", return_value=mock_service):
             response = client.get("/api/session/NONEXISTENT")
         
         assert response.status_code == 200
@@ -262,8 +262,8 @@ class TestDeckBuilderDownload:
     
     def test_download_deck_no_compiled_deck(self, client):
         """Test downloading deck when no deck has been compiled."""
-        from api.deck_builder import deck_sessions
-        from models.deck import DeckSession
+        from src.api.routes.deck_builder import deck_sessions
+        from src.models.deck import DeckSession
         
         session = DeckSession(session_id="test-download-123")
         deck_sessions["test-download-123"] = session
