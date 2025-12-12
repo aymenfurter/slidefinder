@@ -53,7 +53,29 @@ describe('Slide Assistant Component', () => {
     
     function createMockElement(tag, props = {}) {
         const el = document.createElement(tag);
-        Object.assign(el, props);
+        // Separate read-only properties that need Object.defineProperty
+        const readOnlyProps = ['scrollHeight', 'scrollWidth', 'clientHeight', 'clientWidth'];
+        const regularProps = {};
+        const defineProps = {};
+        
+        Object.entries(props).forEach(([key, value]) => {
+            if (readOnlyProps.includes(key)) {
+                defineProps[key] = value;
+            } else {
+                regularProps[key] = value;
+            }
+        });
+        
+        Object.assign(el, regularProps);
+        
+        // Define read-only properties with Object.defineProperty
+        Object.entries(defineProps).forEach(([key, value]) => {
+            Object.defineProperty(el, key, {
+                value: value,
+                writable: true,
+                configurable: true
+            });
+        });
         el.classList.toggle = vi.fn((cls, force) => {
             if (force === undefined) {
                 const has = el.classList.contains(cls);
