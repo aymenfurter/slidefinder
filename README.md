@@ -1,6 +1,8 @@
 <div align="center">
 
-# 🔍 SlideFinder
+<img src="src/web/static/favicon/favicon.svg" alt="SlideFinder Logo" width="80" height="80">
+
+# SlideFinder
 
 **Search & Build Custom Decks from Microsoft Build & Ignite Presentations**
 
