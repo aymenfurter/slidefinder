@@ -6,6 +6,7 @@
 
 **Search & Build Custom Decks from Microsoft Build & Ignite Presentations**
 
+[![Tests](https://github.com/aymenfurter/slidefinder/actions/workflows/tests.yml/badge.svg)](https://github.com/aymenfurter/slidefinder/actions/workflows/tests.yml)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.123-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Azure](https://img.shields.io/badge/Azure_AI_Search-0078D4?style=flat-square&logo=microsoft-azure&logoColor=white)](https://azure.microsoft.com/products/ai-services/ai-search)

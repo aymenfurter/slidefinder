@@ -5,26 +5,73 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
+// Create mock functions that persist across module resets
+const mockGetById = vi.fn();
+const mockCreateElement = vi.fn((tag, attrs = {}, text = '') => {
+    const el = document.createElement(tag);
+    Object.entries(attrs).forEach(([key, val]) => {
+        if (key === 'className') el.className = val;
+        else if (key === 'id') el.id = val;
+        else el.setAttribute(key, val);
+    });
+    if (text) el.textContent = text;
+    return el;
+});
+const mockFormatMarkdown = vi.fn(text => text);
+const mockParseSSEStream = vi.fn();
+
 // Mock DOM utilities
 vi.mock('../utils/dom.js', () => ({
-    getById: vi.fn(),
-    createElement: vi.fn((tag, attrs = {}, text = '') => {
-        const el = document.createElement(tag);
-        Object.entries(attrs).forEach(([key, val]) => {
-            if (key === 'className') el.className = val;
-            else if (key === 'id') el.id = val;
-            else el.setAttribute(key, val);
-        });
-        if (text) el.textContent = text;
-        return el;
-    }),
-    formatMarkdown: vi.fn(text => text),
+    getById: mockGetById,
+    createElement: mockCreateElement,
+    formatMarkdown: mockFormatMarkdown,
 }));
 
 // Mock API service
 vi.mock('../services/api.js', () => ({
-    parseSSEStream: vi.fn(),
+    parseSSEStream: mockParseSSEStream,
 }));
+
+// Helper to create mock elements - defined before describe block
+function createMockElement(tag, props = {}) {
+    const el = document.createElement(tag);
+    // Separate read-only properties that need Object.defineProperty
+    const readOnlyProps = ['scrollHeight', 'scrollWidth', 'clientHeight', 'clientWidth'];
+    const regularProps = {};
+    const defineProps = {};
+    
+    Object.entries(props).forEach(([key, value]) => {
+        if (readOnlyProps.includes(key)) {
+            defineProps[key] = value;
+        } else {
+            regularProps[key] = value;
+        }
+    });
+    
+    Object.assign(el, regularProps);
+    
+    // Define read-only properties with Object.defineProperty
+    Object.entries(defineProps).forEach(([key, value]) => {
+        Object.defineProperty(el, key, {
+            value: value,
+            writable: true,
+            configurable: true
+        });
+    });
+    el.classList.toggle = vi.fn((cls, force) => {
+        if (force === undefined) {
+            const has = el.classList.contains(cls);
+            has ? el.classList.remove(cls) : el.classList.add(cls);
+            return !has;
+        }
+        force ? el.classList.add(cls) : el.classList.remove(cls);
+        return force;
+    });
+    el.appendChild = vi.fn(child => el);
+    el.remove = vi.fn();
+    el.focus = vi.fn();
+    return el;
+}
 
 describe('Slide Assistant Component', () => {
     let mockElements;
@@ -42,54 +89,13 @@ describe('Slide Assistant Component', () => {
         };
         
         // Setup getById mock
-        const { getById } = require('../utils/dom.js');
-        getById.mockImplementation(id => mockElements[id] || null);
+        mockGetById.mockImplementation(id => mockElements[id] || null);
     });
     
     afterEach(() => {
         vi.clearAllMocks();
         vi.resetModules();
     });
-    
-    function createMockElement(tag, props = {}) {
-        const el = document.createElement(tag);
-        // Separate read-only properties that need Object.defineProperty
-        const readOnlyProps = ['scrollHeight', 'scrollWidth', 'clientHeight', 'clientWidth'];
-        const regularProps = {};
-        const defineProps = {};
-        
-        Object.entries(props).forEach(([key, value]) => {
-            if (readOnlyProps.includes(key)) {
-                defineProps[key] = value;
-            } else {
-                regularProps[key] = value;
-            }
-        });
-        
-        Object.assign(el, regularProps);
-        
-        // Define read-only properties with Object.defineProperty
-        Object.entries(defineProps).forEach(([key, value]) => {
-            Object.defineProperty(el, key, {
-                value: value,
-                writable: true,
-                configurable: true
-            });
-        });
-        el.classList.toggle = vi.fn((cls, force) => {
-            if (force === undefined) {
-                const has = el.classList.contains(cls);
-                has ? el.classList.remove(cls) : el.classList.add(cls);
-                return !has;
-            }
-            force ? el.classList.add(cls) : el.classList.remove(cls);
-            return force;
-        });
-        el.appendChild = vi.fn(child => el);
-        el.remove = vi.fn();
-        el.focus = vi.fn();
-        return el;
-    }
     
     describe('toggleSlideAssistant', () => {
         it('should toggle visible class on section', async () => {
@@ -124,8 +130,7 @@ describe('Slide Assistant Component', () => {
         });
         
         it('should handle missing section gracefully', async () => {
-            const { getById } = require('../utils/dom.js');
-            getById.mockImplementation(id => id === 'slide-assistant-section' ? null : mockElements[id]);
+            mockGetById.mockImplementation(id => id === 'slide-assistant-section' ? null : mockElements[id]);
             
             const { toggleSlideAssistant } = await import('../components/slide-assistant.js');
             
@@ -156,8 +161,7 @@ describe('Slide Assistant Component', () => {
                 ]),
             });
             
-            const { parseSSEStream } = require('../services/api.js');
-            parseSSEStream.mockImplementation(async function* () {
+            mockParseSSEStream.mockImplementation(async function* () {
                 yield { type: 'done' };
             });
             
@@ -176,8 +180,7 @@ describe('Slide Assistant Component', () => {
                 body: createMockReadableStream([]),
             });
             
-            const { parseSSEStream } = require('../services/api.js');
-            parseSSEStream.mockImplementation(async function* () {
+            mockParseSSEStream.mockImplementation(async function* () {
                 yield { type: 'done' };
             });
             
