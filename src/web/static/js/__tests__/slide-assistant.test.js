@@ -71,7 +71,7 @@ describe('Slide Assistant Component', () => {
     
     describe('toggleSlideAssistant', () => {
         it('should toggle visible class on section', async () => {
-            const { toggleSlideAssistant } = await import('./slide-assistant.js');
+            const { toggleSlideAssistant } = await import('../components/slide-assistant.js');
             const section = mockElements['slide-assistant-section'];
             
             toggleSlideAssistant();
@@ -80,7 +80,7 @@ describe('Slide Assistant Component', () => {
         });
         
         it('should toggle active class on toggle button', async () => {
-            const { toggleSlideAssistant } = await import('./slide-assistant.js');
+            const { toggleSlideAssistant } = await import('../components/slide-assistant.js');
             const toggleBtn = mockElements['slide-assistant-toggle'];
             mockElements['slide-assistant-section'].classList.toggle.mockReturnValue(true);
             
@@ -91,7 +91,7 @@ describe('Slide Assistant Component', () => {
         
         it('should focus input when panel opens', async () => {
             vi.useFakeTimers();
-            const { toggleSlideAssistant } = await import('./slide-assistant.js');
+            const { toggleSlideAssistant } = await import('../components/slide-assistant.js');
             mockElements['slide-assistant-section'].classList.toggle.mockReturnValue(true);
             
             toggleSlideAssistant();
@@ -105,7 +105,7 @@ describe('Slide Assistant Component', () => {
             const { getById } = require('../utils/dom.js');
             getById.mockImplementation(id => id === 'slide-assistant-section' ? null : mockElements[id]);
             
-            const { toggleSlideAssistant } = await import('./slide-assistant.js');
+            const { toggleSlideAssistant } = await import('../components/slide-assistant.js');
             
             expect(() => toggleSlideAssistant()).not.toThrow();
         });
@@ -113,7 +113,7 @@ describe('Slide Assistant Component', () => {
     
     describe('sendAssistantMessage', () => {
         it('should not send empty messages', async () => {
-            const { sendAssistantMessage } = await import('./slide-assistant.js');
+            const { sendAssistantMessage } = await import('../components/slide-assistant.js');
             mockElements['assistant-input'].value = '   ';
             const fetchSpy = vi.spyOn(global, 'fetch');
             
@@ -123,7 +123,7 @@ describe('Slide Assistant Component', () => {
         });
         
         it('should disable input while processing', async () => {
-            const { sendAssistantMessage } = await import('./slide-assistant.js');
+            const { sendAssistantMessage } = await import('../components/slide-assistant.js');
             mockElements['assistant-input'].value = 'Find AI slides';
             
             // Mock fetch to return a stream
@@ -146,7 +146,7 @@ describe('Slide Assistant Component', () => {
         });
         
         it('should clear input after sending', async () => {
-            const { sendAssistantMessage } = await import('./slide-assistant.js');
+            const { sendAssistantMessage } = await import('../components/slide-assistant.js');
             mockElements['assistant-input'].value = 'Find AI slides';
             
             global.fetch = vi.fn().mockResolvedValue({
@@ -165,7 +165,7 @@ describe('Slide Assistant Component', () => {
         });
         
         it('should handle HTTP errors gracefully', async () => {
-            const { sendAssistantMessage } = await import('./slide-assistant.js');
+            const { sendAssistantMessage } = await import('../components/slide-assistant.js');
             mockElements['assistant-input'].value = 'Find slides';
             
             global.fetch = vi.fn().mockResolvedValue({
@@ -182,7 +182,7 @@ describe('Slide Assistant Component', () => {
         });
         
         it('should handle network errors gracefully', async () => {
-            const { sendAssistantMessage } = await import('./slide-assistant.js');
+            const { sendAssistantMessage } = await import('../components/slide-assistant.js');
             mockElements['assistant-input'].value = 'Find slides';
             
             global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
@@ -198,7 +198,7 @@ describe('Slide Assistant Component', () => {
     
     describe('clearAssistantChat', () => {
         it('should reset the messages container', async () => {
-            const { clearAssistantChat } = await import('./slide-assistant.js');
+            const { clearAssistantChat } = await import('../components/slide-assistant.js');
             
             clearAssistantChat();
             
@@ -208,7 +208,7 @@ describe('Slide Assistant Component', () => {
     
     describe('initSlideAssistant', () => {
         it('should setup event listeners', async () => {
-            const { initSlideAssistant } = await import('./slide-assistant.js');
+            const { initSlideAssistant } = await import('../components/slide-assistant.js');
             
             mockElements['assistant-input'].addEventListener = vi.fn();
             mockElements['assistant-send-btn'].addEventListener = vi.fn();
@@ -223,7 +223,7 @@ describe('Slide Assistant Component', () => {
         });
         
         it('should handle Enter key to send message', async () => {
-            const { initSlideAssistant, sendAssistantMessage } = await import('./slide-assistant.js');
+            const { initSlideAssistant, sendAssistantMessage } = await import('../components/slide-assistant.js');
             
             let keydownHandler;
             mockElements['assistant-input'].addEventListener = vi.fn((event, handler) => {
