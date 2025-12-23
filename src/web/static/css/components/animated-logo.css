@@ -1,0 +1,65 @@
+/**
+ * Animated Logo Styles
+ * ====================
+ * Styles for the WebGL animated circular logo.
+ */
+
+/* ========================================
+   Logo Container
+   ======================================== */
+
+.hero-logo-container {
+    margin-bottom: var(--spacing-4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero.searching .hero-logo-container {
+    display: none;
+}
+
+/* ========================================
+   Animated Logo Wrapper
+   ======================================== */
+
+.animated-logo-wrapper {
+    position: relative;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0078D4 0%, #00BCF2 50%, #7FBA00 100%);
+}
+
+.animated-logo-wrapper canvas {
+    border-radius: 50%;
+}
+
+/* ========================================
+   Fallback SVG Logo
+   ======================================== */
+
+.animated-logo-wrapper svg {
+    display: block;
+}
+
+/* ========================================
+   Responsive Adjustments
+   ======================================== */
+
+@media (max-width: 768px) {
+    .hero-logo-container {
+        margin-bottom: var(--spacing-3);
+    }
+    
+    .animated-logo-wrapper {
+        width: 64px !important;
+        height: 64px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .animated-logo-wrapper {
+        width: 56px !important;
+        height: 56px !important;
+    }
+}

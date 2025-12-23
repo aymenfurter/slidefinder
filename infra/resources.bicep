@@ -13,22 +13,64 @@ param principalId string = ''
 @description('Principal type of user or app')
 param principalType string = 'User'
 
-@description('Location for Azure OpenAI resources')
-@allowed(['australiaeast', 'eastus2', 'francecentral', 'japaneast', 'norwayeast', 'swedencentral', 'uksouth', 'westus'])
-param azureOpenAILocation string = 'eastus2'
+// ============================================================================
+// Microsoft Foundry (Azure AI Services) Parameters
+// ============================================================================
+
+@description('The name of the Azure AI Foundry resource')
+@maxLength(9)
+param aiServicesName string = 'foundry'
+
+@description('The name of your Foundry project')
+param projectName string = 'slidefinder-project'
+
+@description('The description of your Foundry project')
+param projectDescription string = 'Slidefinder AI project for slide search and deck building'
+
+@description('The display name of your Foundry project')
+param projectDisplayName string = 'Slidefinder Project'
+
+@description('Location for Azure AI Foundry resources')
+@allowed([
+  'australiaeast'
+  'canadaeast'
+  'eastus'
+  'eastus2'
+  'francecentral'
+  'japaneast'
+  'koreacentral'
+  'norwayeast'
+  'polandcentral'
+  'southindia'
+  'swedencentral'
+  'switzerlandnorth'
+  'uaenorth'
+  'uksouth'
+  'westus'
+  'westus2'
+  'westus3'
+  'westeurope'
+  'southeastasia'
+  'brazilsouth'
+  'germanywestcentral'
+  'italynorth'
+  'southafricanorth'
+  'southcentralus'
+])
+param aiFoundryLocation string = 'eastus2'
 
 @description('Name of the OpenAI model to deploy')
-param openAIModelName string = 'gpt-4.1-mini'
+param openAIModelName string = 'gpt-4o'
 
 @description('Version of the OpenAI model to deploy')
-param openAIModelVersion string = '2025-04-14'
+param openAIModelVersion string = '2024-11-20'
 
 @description('OpenAI model deployment type')
 @allowed(['Standard', 'GlobalStandard'])
 param openAIModelDeploymentType string = 'GlobalStandard'
 
 @description('OpenAI model deployment capacity (tokens per minute in thousands)')
-param openAIModelCapacity int = 50
+param openAIModelCapacity int = 30
 
 @description('Name of the OpenAI embedding model to deploy')
 param embeddingModelName string = 'text-embedding-ada-002'
@@ -41,13 +83,16 @@ param embeddingModelVersion string = '2'
 param embeddingModelDeploymentType string = 'Standard'
 
 @description('OpenAI embedding model deployment capacity (tokens per minute in thousands)')
-param embeddingModelCapacity int = 50
+param embeddingModelCapacity int = 30
 
 @description('Azure AI Search index name')
 param searchIndexName string = 'slidefinder'
 
 var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = uniqueString(subscription().id, resourceGroup().id, location)
+
+// Create a unique AI Foundry account name using the same pattern as resourceToken
+var aiFoundryAccountName = toLower('${aiServicesName}${resourceToken}')
 
 // ============================================================================
 // Azure AI Search
@@ -68,30 +113,56 @@ resource searchService 'Microsoft.Search/searchServices@2024-03-01-preview' = {
 }
 
 // ============================================================================
-// Azure OpenAI Service
+// Microsoft Foundry (Azure AI Services Account)
 // ============================================================================
-resource openAIService 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
-  name: '${abbrs.cognitiveServicesAccounts}openai-${resourceToken}'
-  location: azureOpenAILocation
+#disable-next-line BCP081
+resource aiFoundryAccount 'Microsoft.CognitiveServices/accounts@2025-04-01-preview' = {
+  name: aiFoundryAccountName
+  location: aiFoundryLocation
   tags: tags
-  kind: 'OpenAI'
   sku: {
     name: 'S0'
   }
+  kind: 'AIServices'
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
-    customSubDomainName: '${abbrs.cognitiveServicesAccounts}openai-${resourceToken}'
-    publicNetworkAccess: 'Enabled'
+    allowProjectManagement: true
+    customSubDomainName: toLower(aiFoundryAccountName)
     networkAcls: {
       defaultAction: 'Allow'
+      virtualNetworkRules: []
+      ipRules: []
     }
+    publicNetworkAccess: 'Enabled'
+    disableLocalAuth: false
   }
 }
 
 // ============================================================================
-// Azure OpenAI Model Deployment
+// Microsoft Foundry Project
 // ============================================================================
+#disable-next-line BCP081
+resource aiFoundryProject 'Microsoft.CognitiveServices/accounts/projects@2025-04-01-preview' = {
+  parent: aiFoundryAccount
+  name: projectName
+  location: aiFoundryLocation
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    description: projectDescription
+    displayName: projectDisplayName
+  }
+}
+
+// ============================================================================
+// OpenAI Model Deployment
+// ============================================================================
+#disable-next-line BCP081
 resource openAIDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = {
-  parent: openAIService
+  parent: aiFoundryAccount
   name: openAIModelName
   sku: {
     name: openAIModelDeploymentType
@@ -103,15 +174,15 @@ resource openAIDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024
       name: openAIModelName
       version: openAIModelVersion
     }
-    raiPolicyName: 'Microsoft.Default'
   }
 }
 
 // ============================================================================
-// Azure OpenAI Embedding Model Deployment
+// Embedding Model Deployment
 // ============================================================================
+#disable-next-line BCP081
 resource embeddingDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = {
-  parent: openAIService
+  parent: aiFoundryAccount
   name: embeddingModelName
   dependsOn: [openAIDeployment]
   sku: {
@@ -218,8 +289,8 @@ module slidefinder 'br/public:avm/res/app/container-app:0.8.0' = {
           value: searchService.listAdminKeys().primaryKey
         }
         {
-          name: 'azure-openai-key'
-          value: openAIService.listKeys().key1
+          name: 'azure-ai-foundry-key'
+          value: aiFoundryAccount.listKeys().key1
         }
       ]
     }
@@ -254,11 +325,19 @@ module slidefinder 'br/public:avm/res/app/container-app:0.8.0' = {
           }
           {
             name: 'AZURE_OPENAI_ENDPOINT'
-            value: openAIService.properties.endpoint
+            value: aiFoundryAccount.properties.endpoint
           }
           {
             name: 'AZURE_OPENAI_API_KEY'
-            secretRef: 'azure-openai-key'
+            secretRef: 'azure-ai-foundry-key'
+          }
+          {
+            name: 'AZURE_AI_FOUNDRY_PROJECT'
+            value: aiFoundryProject.name
+          }
+          {
+            name: 'AZURE_AI_PROJECT_ENDPOINT'
+            value: 'https://${aiFoundryAccountName}.services.ai.azure.com/api/projects/${projectName}'
           }
           {
             name: 'AZURE_OPENAI_DEPLOYMENT'
@@ -300,7 +379,7 @@ module slidefinder 'br/public:avm/res/app/container-app:0.8.0' = {
 }
 
 // ============================================================================
-// Role Assignments for Container App Identity
+// Role Assignments for Container App Identity - Azure AI Search
 // ============================================================================
 
 // Search Index Data Contributor role for the container app identity
@@ -310,6 +389,16 @@ resource containerAppSearchIndexDataContributorRole 'Microsoft.Authorization/rol
     principalId: slidefinderIdentity.outputs.principalId
     principalType: 'ServicePrincipal'
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '8ebe5a00-799e-43f5-93ac-243d3dce84a7')
+  }
+}
+
+// Search Index Data Reader role for the container app identity
+resource containerAppSearchIndexDataReaderRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(resourceGroup().id, slidefinder.name, '1407120a-92aa-4202-b7e9-c0e197c71c8f')
+  properties: {
+    principalId: slidefinderIdentity.outputs.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '1407120a-92aa-4202-b7e9-c0e197c71c8f')
   }
 }
 
@@ -324,7 +413,41 @@ resource containerAppSearchServiceContributorRole 'Microsoft.Authorization/roleA
 }
 
 // ============================================================================
-// Role Assignments for User (if principalId provided)
+// Role Assignments for Container App Identity - Microsoft Foundry / AI Services
+// ============================================================================
+
+// Azure AI Developer role for the container app identity
+resource containerAppAzureAIDeveloperRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(resourceGroup().id, slidefinder.name, '64702f94-c441-49e6-a78b-ef80e0188fee')
+  properties: {
+    principalId: slidefinderIdentity.outputs.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '64702f94-c441-49e6-a78b-ef80e0188fee')
+  }
+}
+
+// Cognitive Services User role for the container app identity
+resource containerAppCognitiveServicesUserRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(resourceGroup().id, slidefinder.name, 'a97b65f3-24c7-4388-baec-2e87135dc908')
+  properties: {
+    principalId: slidefinderIdentity.outputs.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'a97b65f3-24c7-4388-baec-2e87135dc908')
+  }
+}
+
+// Azure AI User role for the container app identity
+resource containerAppAzureAIUserRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(resourceGroup().id, slidefinder.name, '53ca6127-db72-4b80-b1b0-d745d6d5456d')
+  properties: {
+    principalId: slidefinderIdentity.outputs.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '53ca6127-db72-4b80-b1b0-d745d6d5456d')
+  }
+}
+
+// ============================================================================
+// Role Assignments for User - Azure AI Search (if principalId provided)
 // ============================================================================
 
 // Search Index Data Contributor role for user
@@ -337,6 +460,16 @@ resource userSearchIndexDataContributorRole 'Microsoft.Authorization/roleAssignm
   }
 }
 
+// Search Index Data Reader role for user
+resource userSearchIndexDataReaderRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(principalId)) {
+  name: guid(resourceGroup().id, principalId, '1407120a-92aa-4202-b7e9-c0e197c71c8f')
+  properties: {
+    principalId: principalId
+    principalType: principalType
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '1407120a-92aa-4202-b7e9-c0e197c71c8f')
+  }
+}
+
 // Search Service Contributor role for user
 resource userSearchServiceContributorRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(principalId)) {
   name: guid(resourceGroup().id, principalId, '7ca78c08-252a-4471-8644-bb5ff32d4ba0')
@@ -344,6 +477,40 @@ resource userSearchServiceContributorRole 'Microsoft.Authorization/roleAssignmen
     principalId: principalId
     principalType: principalType
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '7ca78c08-252a-4471-8644-bb5ff32d4ba0')
+  }
+}
+
+// ============================================================================
+// Role Assignments for User - Microsoft Foundry / AI Services (if principalId provided)
+// ============================================================================
+
+// Azure AI Developer role for user
+resource userAzureAIDeveloperRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(principalId)) {
+  name: guid(resourceGroup().id, principalId, '64702f94-c441-49e6-a78b-ef80e0188fee')
+  properties: {
+    principalId: principalId
+    principalType: principalType
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '64702f94-c441-49e6-a78b-ef80e0188fee')
+  }
+}
+
+// Cognitive Services User role for user
+resource userCognitiveServicesUserRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(principalId)) {
+  name: guid(resourceGroup().id, principalId, 'a97b65f3-24c7-4388-baec-2e87135dc908')
+  properties: {
+    principalId: principalId
+    principalType: principalType
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'a97b65f3-24c7-4388-baec-2e87135dc908')
+  }
+}
+
+// Azure AI User role for user
+resource userAzureAIUserRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(principalId)) {
+  name: guid(resourceGroup().id, principalId, '53ca6127-db72-4b80-b1b0-d745d6d5456d')
+  properties: {
+    principalId: principalId
+    principalType: principalType
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '53ca6127-db72-4b80-b1b0-d745d6d5456d')
   }
 }
 
@@ -360,6 +527,9 @@ output AZURE_SUBSCRIPTION_ID string = subscription().subscriptionId
 output SLIDEFINDER_IDENTITY_PRINCIPAL_ID string = slidefinderIdentity.outputs.principalId
 output AZURE_AI_SEARCH_ENDPOINT string = 'https://${searchService.name}.search.windows.net'
 output AZURE_AI_SEARCH_NAME string = searchService.name
-output AZURE_OPENAI_ENDPOINT string = openAIService.properties.endpoint
+output AZURE_OPENAI_ENDPOINT string = aiFoundryAccount.properties.endpoint
 output AZURE_OPENAI_DEPLOYMENT string = openAIDeployment.name
 output AZURE_OPENAI_EMBEDDING_DEPLOYMENT string = embeddingDeployment.name
+output AZURE_AI_FOUNDRY_ACCOUNT_NAME string = aiFoundryAccount.name
+output AZURE_AI_FOUNDRY_PROJECT_NAME string = aiFoundryProject.name
+output AZURE_AI_PROJECT_ENDPOINT string = 'https://${aiFoundryAccountName}.services.ai.azure.com/api/projects/${projectName}'
