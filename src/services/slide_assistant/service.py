@@ -2,17 +2,18 @@
 Slide Assistant Service
 Provides AI-powered conversational search for finding slides.
 
-Uses Microsoft Agent Framework for consistent orchestration across all AI services.
-Structured output API provides type-safe LLM responses.
+Uses Microsoft Foundry Agents with function calling for structured output.
+The agent calls a function tool to return type-safe responses.
 """
 
 import json
 import logging
 from typing import Optional, AsyncGenerator
 
-from agent_framework import ChatMessage, Role
-from agent_framework.azure import AzureOpenAIChatClient
+from azure.ai.projects import AIProjectClient
+from azure.ai.projects.models import PromptAgentDefinition, Tool, FunctionTool
 from azure.identity import DefaultAzureCredential
+from openai.types.responses.response_input_param import FunctionCallOutput, ResponseInputParam
 from pydantic import ValidationError
 
 from src.core import get_settings
@@ -38,45 +39,96 @@ For follow_up_suggestions: Generate 2-3 natural follow-up questions that the USE
 
 The search results below contain slides that might be relevant to the user's query. Analyze them and provide helpful recommendations.
 
+IMPORTANT: You MUST call the 'provide_chat_response' function to return your response. Do not respond with plain text.
 Only include slides that are actually relevant to the user's question. Provide a clear relevance_reason for each slide."""
+
+
+# Define the function tool schema for structured output
+CHAT_RESPONSE_FUNCTION_TOOL = FunctionTool(
+    name="provide_chat_response",
+    description="Provide a structured response to the user's slide search query. This function MUST be called to return results.",
+    parameters={
+        "type": "object",
+        "properties": {
+            "answer": {
+                "type": "string",
+                "description": "Helpful, conversational answer to the user's question about finding slides. Should be friendly and guide users to relevant slides.",
+            },
+            "referenced_slides": {
+                "type": "array",
+                "description": "List of relevant slides that match the user's query.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "slide_id": {"type": "string", "description": "Unique identifier for the slide"},
+                        "session_code": {"type": "string", "description": "Session code (e.g., BRK108)"},
+                        "slide_number": {"type": "integer", "description": "Slide number within the session"},
+                        "title": {"type": "string", "description": "Session title"},
+                        "content": {"type": "string", "description": "Slide content snippet"},
+                        "event": {"type": "string", "description": "Event name (Build/Ignite)"},
+                        "session_url": {"type": "string", "description": "URL to the session"},
+                        "ppt_url": {"type": "string", "description": "URL to the PowerPoint file"},
+                        "relevance_reason": {"type": "string", "description": "Why this slide is relevant to the query"},
+                    },
+                    "required": ["slide_id", "session_code", "slide_number", "title", "content", "event", "session_url", "ppt_url", "relevance_reason"],
+                    "additionalProperties": False,
+                },
+            },
+            "follow_up_suggestions": {
+                "type": "array",
+                "description": "2-3 natural follow-up questions the USER would want to ask next. Phrase as direct search queries.",
+                "items": {"type": "string"},
+            },
+        },
+        "required": ["answer", "referenced_slides", "follow_up_suggestions"],
+        "additionalProperties": False,
+    },
+    strict=True,
+)
 
 
 class SlideAssistantService:
     """
     Service for AI-powered slide search assistance.
     
-    Uses Microsoft Agent Framework with Azure OpenAI for consistent
-    orchestration across all AI services. Structured output provides
-    type-safe responses.
+    Uses Microsoft Foundry Agents with function calling for consistent
+    orchestration. Function tools provide type-safe structured responses.
     """
     
     def __init__(self):
         """Initialize the slide assistant service."""
         self._settings = get_settings()
-        self._chat_client: Optional[AzureOpenAIChatClient] = None
-        self._assistant_agent = None
+        self._project_client: Optional[AIProjectClient] = None
+        self._openai_client = None
+        self._agent = None
+        self._agent_name = self._settings.azure_ai_foundry_agent_name
     
     @property
     def is_available(self) -> bool:
         """Check if the service is available."""
-        return self._settings.has_azure_openai
+        return self._settings.has_foundry_agent
     
     def _ensure_client(self) -> None:
-        """Ensure the chat client and agent are initialized."""
-        if self._chat_client is None:
+        """Ensure the Foundry client and agent are initialized."""
+        if self._project_client is None:
             credential = DefaultAzureCredential()
-            self._chat_client = AzureOpenAIChatClient(
+            self._project_client = AIProjectClient(
+                endpoint=self._settings.azure_ai_project_endpoint or "",
                 credential=credential,
-                endpoint=self._settings.azure_openai_endpoint or "",
-                deployment_name=self._settings.azure_openai_nano_deployment,
-                api_version=self._settings.azure_openai_api_version,
             )
+            self._openai_client = self._project_client.get_openai_client()
             
-            # Create the slide assistant agent
-            self._assistant_agent = self._chat_client.create_agent(
-                name="SlideAssistantAgent",
-                instructions=SLIDE_ASSISTANT_INSTRUCTIONS,
+            # Create or update the slide assistant agent with function tool
+            tools: list[Tool] = [CHAT_RESPONSE_FUNCTION_TOOL]
+            self._agent = self._project_client.agents.create_version(
+                agent_name=self._agent_name,
+                definition=PromptAgentDefinition(
+                    model=self._settings.azure_openai_nano_deployment,
+                    instructions=SLIDE_ASSISTANT_INSTRUCTIONS,
+                    tools=tools,
+                ),
             )
+            logger.info(f"Created Foundry agent: {self._agent.name} (version: {self._agent.version})")
     
     def _search_slides(self, query: str) -> list[dict]:
         """Search for relevant slides."""
@@ -118,33 +170,70 @@ class SlideAssistantService:
             context += f"- **Content**: {slide['content'][:500]}...\n\n"
         return context
     
-    def _build_messages(
+    def _build_input_messages(
         self,
         context: str,
         message: str,
         history: list[ChatHistoryMessage] = None,
-    ) -> list[ChatMessage]:
-        """Build message list for the agent."""
+    ) -> list[dict]:
+        """Build input message list for the Foundry agent."""
         messages = []
         
         # Add context as first user message
-        messages.append(ChatMessage(
-            role=Role.USER,
-            text=f"Here are the search results for context:\n\n{context}"
-        ))
+        messages.append({
+            "role": "user",
+            "content": f"Here are the search results for context:\n\n{context}"
+        })
         
-        # Add history (map assistant to ASSISTANT role)
+        # Add history
         history = history or []
         for msg in history[-6:]:  # Keep last 6 messages
-            if msg.role == "user":
-                messages.append(ChatMessage(role=Role.USER, text=msg.content))
-            else:
-                messages.append(ChatMessage(role=Role.ASSISTANT, text=msg.content))
+            messages.append({
+                "role": msg.role,
+                "content": msg.content
+            })
         
         # Add current message
-        messages.append(ChatMessage(role=Role.USER, text=message))
+        messages.append({"role": "user", "content": message})
         
         return messages
+    
+    def _parse_function_call_response(self, response) -> ChatResponse:
+        """Parse the function call response from the agent."""
+        for item in response.output:
+            if item.type == "function_call" and item.name == "provide_chat_response":
+                args = json.loads(item.arguments)
+                
+                # Parse referenced slides
+                referenced_slides = []
+                for slide_data in args.get("referenced_slides", []):
+                    referenced_slides.append(ReferencedSlide(
+                        slide_id=slide_data.get("slide_id", ""),
+                        session_code=slide_data.get("session_code", ""),
+                        slide_number=slide_data.get("slide_number", 0),
+                        title=slide_data.get("title", ""),
+                        content=slide_data.get("content", ""),
+                        event=slide_data.get("event", ""),
+                        session_url=slide_data.get("session_url", ""),
+                        ppt_url=slide_data.get("ppt_url", ""),
+                        relevance_reason=slide_data.get("relevance_reason", ""),
+                    ))
+                
+                return ChatResponse(
+                    answer=args.get("answer", ""),
+                    referenced_slides=referenced_slides,
+                    follow_up_suggestions=args.get("follow_up_suggestions", []),
+                )
+        
+        # If no function call found, try to parse text output
+        if response.output_text:
+            return ChatResponse(
+                answer=response.output_text,
+                referenced_slides=[],
+                follow_up_suggestions=["Try searching for a specific topic"],
+            )
+        
+        raise ValueError("No valid function call or text response found")
     
     async def chat(
         self,
@@ -175,23 +264,24 @@ class SlideAssistantService:
             # Search for relevant slides
             search_results = self._search_slides(message)
             
-            # Build context and messages
+            # Build context and input messages
             context = self._build_context(search_results)
-            messages = self._build_messages(context, message, history)
+            input_messages = self._build_input_messages(context, message, history)
             
-            # Use agent with structured output
-            response = await self._assistant_agent.run(
-                messages,
-                response_format=ChatResponse
+            # Create conversation input string from messages
+            input_text = "\n\n".join([
+                f"[{msg['role'].upper()}]: {msg['content']}" 
+                for msg in input_messages
+            ])
+            
+            # Call the Foundry agent with function tools
+            response = self._openai_client.responses.create(
+                input=input_text,
+                extra_body={"agent": {"name": self._agent_name, "type": "agent_reference"}},
             )
             
-            if response.value and isinstance(response.value, ChatResponse):
-                parsed = response.value
-            elif response.value:
-                # Try to parse if it's a dict or similar
-                parsed = ChatResponse.model_validate(response.value)
-            else:
-                raise ValueError("Failed to parse response")
+            # Parse the function call response
+            parsed = self._parse_function_call_response(response)
             
             # Enrich referenced slides with thumbnail URLs from search results
             enriched_slides = self._enrich_slides_with_thumbnails(
@@ -204,7 +294,7 @@ class SlideAssistantService:
                 follow_up_suggestions=parsed.follow_up_suggestions,
             )
             
-        except (ValidationError, ValueError) as e:
+        except (ValidationError, ValueError, json.JSONDecodeError) as e:
             logger.error(f"Slide assistant parsing error: {e}")
             return self._error_response("I couldn't process the response properly.")
         except Exception as e:
@@ -258,7 +348,7 @@ class SlideAssistantService:
         """
         Process a chat message with streaming response.
         
-        Uses Microsoft Agent Framework for consistent orchestration.
+        Uses Microsoft Foundry Agents for consistent orchestration.
         Yields SSE-formatted events for real-time UI updates.
         
         Args:
@@ -295,24 +385,26 @@ class SlideAssistantService:
                     "thumbnail_url": slide.get("thumbnail_url"),
                 })
             
-            # Build context and messages
+            # Build context and input messages
             context = self._build_context(search_results)
-            messages = self._build_messages(context, message, history)
+            input_messages = self._build_input_messages(context, message, history)
             
             yield 'data: {"type": "status", "message": "Analyzing slides..."}\n\n'
             
-            # Use agent with structured output
-            response = await self._assistant_agent.run(
-                messages,
-                response_format=ChatResponse
+            # Create conversation input string from messages
+            input_text = "\n\n".join([
+                f"[{msg['role'].upper()}]: {msg['content']}" 
+                for msg in input_messages
+            ])
+            
+            # Call the Foundry agent with function tools
+            response = self._openai_client.responses.create(
+                input=input_text,
+                extra_body={"agent": {"name": self._agent_name, "type": "agent_reference"}},
             )
             
-            if response.value and isinstance(response.value, ChatResponse):
-                parsed = response.value
-            elif response.value:
-                parsed = ChatResponse.model_validate(response.value)
-            else:
-                raise ValueError("Failed to parse response")
+            # Parse the function call response
+            parsed = self._parse_function_call_response(response)
             
             # Enrich referenced slides with thumbnail URLs
             enriched_slides = self._enrich_slides_with_thumbnails(
@@ -330,7 +422,7 @@ class SlideAssistantService:
             yield f'data: {json.dumps(final_response)}\n\n'
             yield 'data: {"type": "done"}\n\n'
             
-        except (ValidationError, ValueError) as e:
+        except (ValidationError, ValueError, json.JSONDecodeError) as e:
             logger.error(f"Slide assistant stream parsing error: {e}")
             yield f'data: {json.dumps({"type": "error", "message": "Failed to process response"})}\n\n'
         except Exception as e:

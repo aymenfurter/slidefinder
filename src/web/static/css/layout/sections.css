@@ -128,6 +128,22 @@
     gap: var(--spacing-5);
 }
 
+.gdpr-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 5000;
+}
+
+.gdpr-overlay.hidden {
+    display: none;
+}
+
 /* ========================================
    Disclaimer Footer
    ======================================== */
@@ -142,7 +158,7 @@
     -webkit-backdrop-filter: blur(10px);
     border-top: 1px solid var(--color-border);
     padding: var(--spacing-3) var(--spacing-5);
-    z-index: var(--z-modal);
+    z-index: 6000;
 }
 
 .disclaimer-content {
@@ -177,21 +193,40 @@
     text-decoration: underline;
 }
 
-.disclaimer-dismiss-btn {
-    background: transparent;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    padding: var(--spacing-2);
-    cursor: pointer;
-    color: var(--color-text-secondary);
-    flex-shrink: 0;
-    transition: all var(--transition-base);
+.disclaimer-buttons {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    gap: var(--spacing-2);
+    flex-shrink: 0;
 }
 
-.disclaimer-dismiss-btn:hover {
+.disclaimer-btn {
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-2) var(--spacing-4);
+    cursor: pointer;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    transition: all var(--transition-base);
+    white-space: nowrap;
+}
+
+.disclaimer-btn-agree {
+    background: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    color: white;
+}
+
+.disclaimer-btn-agree:hover {
+    background: var(--color-primary-hover, var(--color-primary));
+    filter: brightness(1.1);
+}
+
+.disclaimer-btn-decline {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+}
+
+.disclaimer-btn-decline:hover {
     background: var(--color-card);
     border-color: var(--color-text-secondary);
     color: var(--color-text);
@@ -199,4 +234,42 @@
 
 .disclaimer-footer.hidden {
     display: none;
+}
+
+/* Consent Management Link - GDPR compliant consent withdrawal */
+.consent-link-container {
+    position: fixed;
+    bottom: var(--spacing-3);
+    right: var(--spacing-3);
+    z-index: 100;
+}
+
+.consent-link-container.hidden {
+    display: none;
+}
+
+.consent-link {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-1) var(--spacing-2);
+    cursor: pointer;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    transition: all var(--transition-base);
+    opacity: 0.7;
+}
+
+.consent-link:hover {
+    opacity: 1;
+    color: var(--color-text-secondary);
+    border-color: var(--color-text-secondary);
+    background: var(--color-surface);
+}
+
+.consent-link svg {
+    flex-shrink: 0;
 }

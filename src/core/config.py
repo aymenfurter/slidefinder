@@ -71,6 +71,16 @@ class Settings(BaseSettings):
         description="Azure OpenAI nano deployment name for lightweight AI overview generation"
     )
     
+    # Azure AI Foundry Configuration
+    azure_ai_project_endpoint: Optional[str] = Field(
+        default=None,
+        description="Azure AI Foundry project endpoint URL"
+    )
+    azure_ai_foundry_agent_name: str = Field(
+        default="SlideAssistantAgent",
+        description="Agent name for Slide Assistant in Foundry"
+    )
+    
     # Azure AI Search Configuration
     azure_search_endpoint: Optional[str] = Field(
         default=None,
@@ -107,6 +117,32 @@ class Settings(BaseSettings):
         description="Allowed CORS origins"
     )
     
+    # Tracing Configuration (Optional - disabled by default)
+    tracing_enabled: bool = Field(
+        default=False,
+        description="Enable OpenTelemetry tracing for AI services"
+    )
+    tracing_otlp_endpoint: str = Field(
+        default="http://localhost:4318/v1/traces",
+        description="OTLP HTTP endpoint for trace export (Foundry SDK)"
+    )
+    tracing_otlp_grpc_endpoint: str = Field(
+        default="http://localhost:4317",
+        description="OTLP gRPC endpoint for trace export (Agent Framework)"
+    )
+    tracing_service_name: str = Field(
+        default="slidefinder",
+        description="Service name for tracing"
+    )
+    tracing_enable_content_recording: bool = Field(
+        default=True,
+        description="Enable recording of prompts and completions in traces"
+    )
+    applicationinsights_connection_string: Optional[str] = Field(
+        default=None,
+        description="Azure Application Insights connection string for cloud tracing"
+    )
+    
     @property
     def has_azure_openai(self) -> bool:
         """Check if Azure OpenAI is fully configured."""
@@ -115,6 +151,11 @@ class Settings(BaseSettings):
             and self.azure_openai_endpoint 
             and self.azure_openai_deployment
         )
+    
+    @property
+    def has_foundry_agent(self) -> bool:
+        """Check if Azure AI Foundry Agent Service is configured."""
+        return bool(self.azure_ai_project_endpoint)
     
     @property
     def llm_provider(self) -> str:

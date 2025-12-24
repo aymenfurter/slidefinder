@@ -181,8 +181,9 @@
         text-align: center;
     }
 
-    .disclaimer-dismiss-btn {
+    .disclaimer-buttons {
         align-self: center;
+        justify-content: center;
     }
 }
 

@@ -2,6 +2,7 @@
 Unit tests for the Slide Assistant Service.
 """
 
+import json
 import pytest
 from unittest.mock import Mock, patch, MagicMock, AsyncMock
 from pydantic import ValidationError
@@ -15,42 +16,14 @@ from src.services.slide_assistant.models import (
 from src.services.slide_assistant.service import SlideAssistantService
 
 
-class TestAgentFrameworkIntegration:
-    """Tests for agent framework integration to prevent regressions."""
-    
-    def test_role_enum_has_required_attributes(self):
-        """Verify the Role enum has the attributes we use."""
-        from agent_framework import Role
-        
-        # These are the Role values we use in the service
-        assert hasattr(Role, 'USER'), "Role.USER is required"
-        assert hasattr(Role, 'ASSISTANT'), "Role.ASSISTANT is required"
-        
-        # Verify they are valid enum members
-        assert Role.USER is not None
-        assert Role.ASSISTANT is not None
-    
-    def test_chat_message_creation(self):
-        """Test that ChatMessage can be created with Role enum."""
-        from agent_framework import ChatMessage as AgentChatMessage, Role
-        
-        # Test USER role
-        user_msg = AgentChatMessage(role=Role.USER, text="Hello")
-        assert user_msg.role == Role.USER
-        assert user_msg.text == "Hello"
-        
-        # Test ASSISTANT role
-        assistant_msg = AgentChatMessage(role=Role.ASSISTANT, text="Hi there")
-        assert assistant_msg.role == Role.ASSISTANT
-        assert assistant_msg.text == "Hi there"
+class TestFoundryAgentIntegration:
+    """Tests for Foundry Agent Service integration to prevent regressions."""
     
     @patch("src.services.slide_assistant.service.get_settings")
-    def test_build_messages_uses_correct_roles(self, mock_get_settings):
-        """Test that _build_messages uses correct Role enum values."""
-        from agent_framework import Role
-        
+    def test_build_input_messages_returns_list(self, mock_get_settings):
+        """Test that _build_input_messages returns a list of message dicts."""
         settings = Mock()
-        settings.has_azure_openai = True
+        settings.has_foundry_agent = True
         mock_get_settings.return_value = settings
         
         service = SlideAssistantService()
@@ -61,51 +34,50 @@ class TestAgentFrameworkIntegration:
             ChatMessage(role="user", content="Second question"),
         ]
         
-        messages = service._build_messages(
+        result = service._build_input_messages(
             context="Test context",
             message="Current message",
             history=history,
         )
         
-        # Verify message count: context + 3 history + current = 5
-        assert len(messages) == 5
+        # Verify result is a list of dicts
+        assert isinstance(result, list)
+        assert all(isinstance(msg, dict) for msg in result)
         
-        # Verify roles are correctly mapped
-        assert messages[0].role == Role.USER  # Context
-        assert messages[1].role == Role.USER  # First user message
-        assert messages[2].role == Role.ASSISTANT  # Assistant response
-        assert messages[3].role == Role.USER  # Second user message  
-        assert messages[4].role == Role.USER  # Current message
+        # Verify context is included in first message
+        assert "Test context" in result[0]["content"]
+        
+        # Verify all messages have role and content
+        for msg in result:
+            assert "role" in msg
+            assert "content" in msg
     
     @patch("src.services.slide_assistant.service.get_settings")
-    def test_build_messages_with_empty_history(self, mock_get_settings):
+    def test_build_input_messages_with_empty_history(self, mock_get_settings):
         """Test message building with no history."""
-        from agent_framework import Role
-        
         settings = Mock()
-        settings.has_azure_openai = True
+        settings.has_foundry_agent = True
         mock_get_settings.return_value = settings
         
         service = SlideAssistantService()
         
-        messages = service._build_messages(
+        result = service._build_input_messages(
             context="Test context",
             message="Current message",
             history=[],
         )
         
-        # Should have context + current message = 2
-        assert len(messages) == 2
-        assert messages[0].role == Role.USER
-        assert messages[1].role == Role.USER
-        assert "Test context" in messages[0].text
-        assert messages[1].text == "Current message"
+        assert isinstance(result, list)
+        # Should have context message + current message
+        assert len(result) == 2
+        assert "Test context" in result[0]["content"]
+        assert result[-1]["content"] == "Current message"
     
     @patch("src.services.slide_assistant.service.get_settings")
-    def test_build_messages_limits_history(self, mock_get_settings):
+    def test_build_input_messages_limits_history(self, mock_get_settings):
         """Test that history is limited to last 6 messages."""
         settings = Mock()
-        settings.has_azure_openai = True
+        settings.has_foundry_agent = True
         mock_get_settings.return_value = settings
         
         service = SlideAssistantService()
@@ -116,14 +88,101 @@ class TestAgentFrameworkIntegration:
             for i in range(10)
         ]
         
-        messages = service._build_messages(
+        result = service._build_input_messages(
             context="Test context",
             message="Current message",
             history=history,
         )
         
-        # Should have context + last 6 history + current = 8
-        assert len(messages) == 8
+        # Convert to string for easy searching
+        result_str = json.dumps(result)
+        
+        # First 4 messages should NOT be included (only last 6)
+        assert "Message 0" not in result_str
+        assert "Message 1" not in result_str
+        assert "Message 2" not in result_str
+        assert "Message 3" not in result_str
+        
+        # Last 6 messages SHOULD be included
+        assert "Message 4" in result_str
+        assert "Message 9" in result_str
+    
+    @patch("src.services.slide_assistant.service.get_settings")
+    def test_parse_function_call_response_valid(self, mock_get_settings):
+        """Test processing a valid function call response."""
+        settings = Mock()
+        settings.has_foundry_agent = True
+        mock_get_settings.return_value = settings
+        
+        service = SlideAssistantService()
+        
+        # Create mock response with function call
+        mock_function_call = Mock()
+        mock_function_call.type = "function_call"
+        mock_function_call.name = "provide_chat_response"
+        mock_function_call.arguments = json.dumps({
+            "answer": "Here are some slides about Azure",
+            "referenced_slides": [
+                {
+                    "slide_id": "BRK108_5",
+                    "session_code": "BRK108",
+                    "slide_number": 5,
+                    "title": "Azure Functions",
+                    "content": "Content about Azure Functions",
+                    "event": "Build",
+                    "session_url": "https://example.com",
+                    "relevance_reason": "Covers Azure Functions in depth"
+                }
+            ],
+            "follow_up_suggestions": ["Show me more about triggers"]
+        })
+        
+        mock_response = Mock()
+        mock_response.output = [mock_function_call]
+        mock_response.output_text = None
+        
+        result = service._parse_function_call_response(mock_response)
+        
+        assert result.answer == "Here are some slides about Azure"
+        assert len(result.referenced_slides) == 1
+        assert result.referenced_slides[0].slide_id == "BRK108_5"
+        assert result.follow_up_suggestions == ["Show me more about triggers"]
+    
+    @patch("src.services.slide_assistant.service.get_settings")
+    def test_parse_function_call_response_fallback_to_text(self, mock_get_settings):
+        """Test fallback when no function call is found."""
+        settings = Mock()
+        settings.has_foundry_agent = True
+        mock_get_settings.return_value = settings
+        
+        service = SlideAssistantService()
+        
+        # Create mock response without function call
+        mock_response = Mock()
+        mock_response.output = []
+        mock_response.output_text = "Fallback text response"
+        
+        result = service._parse_function_call_response(mock_response)
+        
+        assert result.answer == "Fallback text response"
+        assert result.referenced_slides == []
+    
+    @patch("src.services.slide_assistant.service.get_settings")
+    def test_parse_function_call_response_no_output_raises(self, mock_get_settings):
+        """Test that missing output raises ValueError."""
+        settings = Mock()
+        settings.has_foundry_agent = True
+        mock_get_settings.return_value = settings
+        
+        service = SlideAssistantService()
+        
+        # Create mock response with no function call and no text
+        mock_response = Mock()
+        mock_response.output = []
+        mock_response.output_text = None
+        
+        with pytest.raises(ValueError):
+            service._parse_function_call_response(mock_response)
 
 
 class TestChatResponseModel:
@@ -228,11 +287,10 @@ class TestSlideAssistantService:
     def mock_settings(self):
         """Create mock settings."""
         settings = Mock()
-        settings.has_azure_openai = True
-        settings.azure_openai_api_key = "test-key"
-        settings.azure_openai_api_version = "2024-02-01"
-        settings.azure_openai_endpoint = "https://test.openai.azure.com"
-        settings.azure_openai_deployment = "gpt-4o"
+        settings.has_foundry_agent = True
+        settings.azure_ai_project_endpoint = "https://test.ai.azure.com/api/projects/test"
+        settings.azure_ai_foundry_agent_name = "SlideAssistantAgent"
+        settings.azure_openai_nano_deployment = "gpt-4.1-nano"
         return settings
     
     @pytest.fixture
@@ -247,6 +305,7 @@ class TestSlideAssistantService:
                 "content": "This slide covers Azure Functions...",
                 "event": "Build",
                 "session_url": "https://example.com/session",
+                "ppt_url": "https://example.com/ppt",
                 "score": 0.95,
                 "thumbnail_url": "/thumbnails/BRK108_5.png",
             },
@@ -258,6 +317,7 @@ class TestSlideAssistantService:
                 "content": "Serverless architecture patterns...",
                 "event": "Ignite",
                 "session_url": "https://example.com/session2",
+                "ppt_url": "https://example.com/ppt2",
                 "score": 0.88,
                 "thumbnail_url": "/thumbnails/BRK200_10.png",
             },
@@ -265,16 +325,16 @@ class TestSlideAssistantService:
     
     @patch("src.services.slide_assistant.service.get_settings")
     def test_is_available_true(self, mock_get_settings, mock_settings):
-        """Test service availability when OpenAI is configured."""
+        """Test service availability when Foundry is configured."""
         mock_get_settings.return_value = mock_settings
         service = SlideAssistantService()
         assert service.is_available is True
     
     @patch("src.services.slide_assistant.service.get_settings")
     def test_is_available_false(self, mock_get_settings):
-        """Test service unavailability when OpenAI is not configured."""
+        """Test service unavailability when Foundry is not configured."""
         settings = Mock()
-        settings.has_azure_openai = False
+        settings.has_foundry_agent = False
         mock_get_settings.return_value = settings
         service = SlideAssistantService()
         assert service.is_available is False
@@ -284,7 +344,7 @@ class TestSlideAssistantService:
     async def test_chat_unavailable_returns_error(self, mock_get_settings):
         """Test chat returns error when service unavailable."""
         settings = Mock()
-        settings.has_azure_openai = False
+        settings.has_foundry_agent = False
         mock_get_settings.return_value = settings
         
         service = SlideAssistantService()
@@ -315,6 +375,7 @@ class TestSlideAssistantService:
         
         assert len(enriched) == 1
         assert enriched[0].thumbnail_url == "/thumbnails/BRK108_5.png"
+        assert enriched[0].ppt_url == "https://example.com/ppt"
     
     @patch("src.services.slide_assistant.service.get_settings")
     def test_error_response_format(self, mock_get_settings, mock_settings):
@@ -332,25 +393,6 @@ class TestSlideAssistantService:
 class TestSlideAssistantServiceIntegration:
     """Integration-style tests with mocked external dependencies."""
     
-    @pytest.fixture
-    def mock_agent_response(self):
-        """Create a mock agent framework response."""
-        return ChatResponse(
-            answer="I found some great slides about Azure Functions!",
-            referenced_slides=[
-                ReferencedSlide(
-                    slide_id="BRK108_5",
-                    session_code="BRK108",
-                    slide_number=5,
-                    title="Azure Functions Overview",
-                    content="Content about serverless...",
-                    event="Build",
-                    relevance_reason="Covers Azure Functions in depth.",
-                )
-            ],
-            follow_up_suggestions=["Want to see more about triggers?"],
-        )
-    
     @pytest.mark.asyncio
     @patch("src.services.slide_assistant.service.get_search_service")
     @patch("src.services.slide_assistant.service.get_settings")
@@ -358,17 +400,13 @@ class TestSlideAssistantServiceIntegration:
         self,
         mock_get_settings,
         mock_get_search_service,
-        mock_agent_response,
     ):
         """Test successful chat with mocked dependencies."""
-        from unittest.mock import AsyncMock
-        
         # Setup settings
         settings = Mock()
-        settings.has_azure_openai = True
-        settings.azure_openai_api_key = "test-key"
-        settings.azure_openai_api_version = "2024-02-01"
-        settings.azure_openai_endpoint = "https://test.openai.azure.com"
+        settings.has_foundry_agent = True
+        settings.azure_ai_project_endpoint = "https://test.ai.azure.com/api/projects/test"
+        settings.azure_ai_foundry_agent_name = "SlideAssistantAgent"
         settings.azure_openai_nano_deployment = "gpt-4.1-nano"
         mock_get_settings.return_value = settings
         
@@ -389,21 +427,49 @@ class TestSlideAssistantServiceIntegration:
         search_service.search.return_value = ([mock_result], 1, None)
         mock_get_search_service.return_value = search_service
         
-        # Create service with mocked agent
+        # Create service
         service = SlideAssistantService()
         
-        # Mock the agent response
-        mock_response = Mock()
-        mock_response.value = mock_agent_response
+        # Mock the function call response from Foundry agent
+        mock_function_call = Mock()
+        mock_function_call.type = "function_call"
+        mock_function_call.name = "provide_chat_response"
+        mock_function_call.arguments = json.dumps({
+            "answer": "I found some great slides about Azure Functions!",
+            "referenced_slides": [
+                {
+                    "slide_id": "BRK108_5",
+                    "session_code": "BRK108",
+                    "slide_number": 5,
+                    "title": "Azure Functions Overview",
+                    "content": "Content about serverless...",
+                    "event": "Build",
+                    "session_url": "https://example.com",
+                    "relevance_reason": "Covers Azure Functions in depth."
+                }
+            ],
+            "follow_up_suggestions": ["Want to see more about triggers?"]
+        })
         
-        mock_agent = AsyncMock()
-        mock_agent.run.return_value = mock_response
+        mock_openai_response = Mock()
+        mock_openai_response.output = [mock_function_call]
+        mock_openai_response.output_text = None
         
-        mock_client = Mock()
-        mock_client.create_agent.return_value = mock_agent
+        mock_openai_client = Mock()
+        mock_openai_client.responses.create.return_value = mock_openai_response
         
-        service._chat_client = mock_client
-        service._assistant_agent = mock_agent
+        mock_agent = Mock()
+        mock_agent.name = "SlideAssistantAgent"
+        mock_agent.version = "1"
+        
+        mock_project_client = Mock()
+        mock_project_client.get_openai_client.return_value = mock_openai_client
+        mock_project_client.agents.create_version.return_value = mock_agent
+        
+        # Inject mocked clients
+        service._project_client = mock_project_client
+        service._openai_client = mock_openai_client
+        service._agent_name = "SlideAssistantAgent"
         
         # Execute
         response = await service.chat("Find slides about Azure Functions")

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SlideFinder - About</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon/favicon.svg">
+    <style>
+        :root {
+            --color-primary: #6366f1;
+            --color-primary-hover: #818cf8;
+            --color-border: #d0d0d0;
+            --color-card: #ffffff;
+            --color-surface: #f5f5f5;
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: linear-gradient(135deg, #0078D4 0%, #00BCF2 50%, #7FBA00 100%);
+            color: #000000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .respect-message {
+            font-size: 1.5rem;
+            color: #000000;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .respect-message strong {
+            font-weight: 700;
+        }
+
+        .changed-mind {
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            color: #000000;
+            font-weight: 500;
+        }
+
+        .changed-mind a {
+            color: #000000;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        .changed-mind a:hover {
+            opacity: 0.8;
+        }
+
+        /* Buttons */
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.75rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #000000;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #333333;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #000000;
+            border: 2px solid #000000;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f0f0;
+        }
+
+        .btn svg {
+            flex-shrink: 0;
+        }
+
+        /* Disclaimer Footer - identical to main page */
+        .disclaimer-footer {
+            background: var(--color-card);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            width: 100%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .disclaimer-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .disclaimer-text {
+            font-size: 0.75rem;
+            color: #666666;
+            line-height: 1.6;
+            text-align: left;
+            margin: 0;
+            flex: 1;
+        }
+
+        .disclaimer-text strong {
+            color: #000000;
+            font-weight: 600;
+        }
+
+        .disclaimer-text a {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .disclaimer-text a:hover {
+            text-decoration: underline;
+        }
+
+        .disclaimer-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .disclaimer-btn {
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .disclaimer-btn-agree {
+            background: var(--color-primary);
+            border: 1px solid var(--color-primary);
+            color: white;
+        }
+
+        .disclaimer-btn-agree:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .disclaimer-btn-decline {
+            background: transparent;
+            border: 1px solid var(--color-border);
+            color: #666666;
+        }
+
+        .disclaimer-btn-decline:hover {
+            background: var(--color-surface);
+            color: #000000;
+        }
+
+        @media (max-width: 600px) {
+            .logo-text {
+                font-size: 2rem;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .disclaimer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .disclaimer-buttons {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="respect-message">
+            <strong>We respect your decision.</strong>
+        </h1>
+
+        <div class="buttons">
+            <a href="https://aymenfurter.ch/articles/building-an-ai-powered-slide-discovery-tool-with-microsoft-agent-framework/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+                Curious how it's built? Read the deep dive →
+            </a>
+        </div>
+
+        <p class="changed-mind">Changed your mind?</p>
+
+        <!-- Disclaimer Footer - identical structure to main page -->
+        <footer class="disclaimer-footer">
+            <div class="disclaimer-content">
+                <p class="disclaimer-text">
+                    All presentation content displayed in this application is the property of Microsoft Corporation. This is a personal project by <a href="https://github.com/aymenfurter" target="_blank" rel="noopener noreferrer">Aymen Furter</a> and is <strong>not affiliated with, endorsed by, or an official product or service of Microsoft</strong>. This tool is provided "as is" without warranty of any kind. <strong>Do not enter or process any personal, sensitive, or confidential data.</strong> No personal data is collected or stored beyond locally cached preferences. For questions, contact via <a href="https://github.com/aymenfurter/slidefinder" target="_blank" rel="noopener noreferrer">GitHub</a>.
+                </p>
+                <div class="disclaimer-buttons">
+                    <button class="disclaimer-btn disclaimer-btn-decline" id="decline-btn">
+                        Decline
+                    </button>
+                    <button class="disclaimer-btn disclaimer-btn-agree" id="accept-btn">
+                        Accept
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Handle Accept - set consent and go to main app
+        document.getElementById('accept-btn').addEventListener('click', function() {
+            localStorage.setItem('slidefinder_disclaimer_dismissed', 'true');
+            window.location.href = '/';
+        });
+
+        // Handle Decline - go to GitHub
+        document.getElementById('decline-btn').addEventListener('click', function() {
+            window.location.href = 'https://github.com/aymenfurter/slidefinder';
+        });
+    </script>
+</body>
+</html>

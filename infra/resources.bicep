@@ -212,6 +212,34 @@ module monitoring 'br/public:avm/ptn/azd/monitoring:0.1.0' = {
   }
 }
 
+// Reference to the Application Insights created by the monitoring module
+resource applicationInsights 'Microsoft.Insights/components@2020-02-02' existing = {
+  name: '${abbrs.insightsComponents}${resourceToken}'
+  dependsOn: [monitoring]
+}
+
+// ============================================================================
+// AI Foundry Connection to Application Insights
+// ============================================================================
+#disable-next-line BCP081
+resource aiFoundryAppInsightsConnection 'Microsoft.CognitiveServices/accounts/connections@2025-04-01-preview' = {
+  name: 'appinsights-connection'
+  parent: aiFoundryAccount
+  properties: {
+    category: 'AppInsights'
+    target: applicationInsights.id
+    authType: 'ApiKey'
+    isSharedToAll: true
+    credentials: {
+      key: applicationInsights.properties.ConnectionString
+    }
+    metadata: {
+      ApiType: 'Azure'
+      ResourceId: applicationInsights.id
+    }
+  }
+}
+
 // ============================================================================
 // Container Registry
 // ============================================================================
