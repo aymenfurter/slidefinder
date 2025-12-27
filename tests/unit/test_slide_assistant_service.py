@@ -2,10 +2,12 @@
 Unit tests for the Slide Assistant Service.
 """
 
+import asyncio
 import json
 import pytest
 from unittest.mock import Mock, patch, MagicMock, AsyncMock
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
+from typing import Optional
 
 from src.services.slide_assistant.models import (
     ChatMessage,
@@ -13,20 +15,35 @@ from src.services.slide_assistant.models import (
     ReferencedSlide,
     ChatRequest,
 )
-from src.services.slide_assistant.service import SlideAssistantService, ChatResponseOutput, SlideReference
+from src.services.slide_assistant.service import SlideAssistantService
 
 
 class TestAgentFrameworkIntegration:
     """Tests for Agent Framework Service integration to prevent regressions."""
     
     @patch("src.services.slide_assistant.service.get_settings")
-    def test_build_user_message_returns_string(self, mock_get_settings):
-        """Test that _build_user_message returns a properly formatted string."""
+    def test_build_prompt_returns_string(self, mock_get_settings):
+        """Test that _build_prompt returns a properly formatted string."""
         settings = Mock()
         settings.has_foundry_agent = True
         mock_get_settings.return_value = settings
         
         service = SlideAssistantService()
+        
+        search_results = [
+            {
+                "slide_id": "BRK108_5",
+                "session_code": "BRK108",
+                "slide_number": 5,
+                "title": "Azure Functions",
+                "content": "Content about Azure Functions",
+                "event": "Build",
+                "session_url": "https://example.com",
+                "ppt_url": "https://example.com/ppt",
+                "score": 0.95,
+                "thumbnail_url": "/thumbnails/BRK108_5.png",
+            }
+        ]
         
         history = [
             ChatMessage(role="user", content="First question"),
@@ -34,8 +51,8 @@ class TestAgentFrameworkIntegration:
             ChatMessage(role="user", content="Second question"),
         ]
         
-        result = service._build_user_message(
-            context="Test context",
+        result = service._build_prompt(
+            search_results=search_results,
             message="Current message",
             history=history,
         )
@@ -43,8 +60,9 @@ class TestAgentFrameworkIntegration:
         # Verify result is a string
         assert isinstance(result, str)
         
-        # Verify context is included
-        assert "Test context" in result
+        # Verify search context is included
+        assert "BRK108" in result
+        assert "Azure Functions" in result
         
         # Verify current message is included
         assert "Current message" in result
@@ -53,28 +71,27 @@ class TestAgentFrameworkIntegration:
         assert "First question" in result
     
     @patch("src.services.slide_assistant.service.get_settings")
-    def test_build_user_message_with_empty_history(self, mock_get_settings):
-        """Test message building with no history."""
+    def test_build_prompt_with_empty_history(self, mock_get_settings):
+        """Test prompt building with no history."""
         settings = Mock()
         settings.has_foundry_agent = True
         mock_get_settings.return_value = settings
         
         service = SlideAssistantService()
         
-        result = service._build_user_message(
-            context="Test context",
+        search_results = []
+        
+        result = service._build_prompt(
+            search_results=search_results,
             message="Current message",
             history=[],
         )
         
         assert isinstance(result, str)
-        assert "Test context" in result
         assert "Current message" in result
-        # Should not have "Previous conversation" section
-        assert "Previous conversation" not in result
     
     @patch("src.services.slide_assistant.service.get_settings")
-    def test_build_user_message_limits_history(self, mock_get_settings):
+    def test_build_prompt_limits_history(self, mock_get_settings):
         """Test that history is limited to last 6 messages."""
         settings = Mock()
         settings.has_foundry_agent = True
@@ -88,8 +105,8 @@ class TestAgentFrameworkIntegration:
             for i in range(10)
         ]
         
-        result = service._build_user_message(
-            context="Test context",
+        result = service._build_prompt(
+            search_results=[],
             message="Current message",
             history=history,
         )
@@ -103,105 +120,6 @@ class TestAgentFrameworkIntegration:
         # Last 6 messages SHOULD be included
         assert "Message 4" in result
         assert "Message 9" in result
-    
-    @patch("src.services.slide_assistant.service.get_settings")
-    def test_parse_structured_response_with_value(self, mock_get_settings):
-        """Test processing a valid structured output response."""
-        settings = Mock()
-        settings.has_foundry_agent = True
-        mock_get_settings.return_value = settings
-        
-        service = SlideAssistantService()
-        
-        # Create mock response with structured output value
-        mock_output = ChatResponseOutput(
-            answer="Here are some slides about Azure",
-            referenced_slides=[
-                SlideReference(
-                    slide_id="BRK108_5",
-                    session_code="BRK108",
-                    slide_number=5,
-                    title="Azure Functions",
-                    content="Content about Azure Functions",
-                    event="Build",
-                    session_url="https://example.com",
-                    ppt_url="https://example.com/ppt",
-                    relevance_reason="Covers Azure Functions in depth"
-                )
-            ],
-            follow_up_suggestions=["Show me more about triggers"]
-        )
-        
-        mock_response = Mock()
-        mock_response.value = mock_output
-        mock_response.text = None
-        
-        result = service._parse_structured_response(mock_response)
-        
-        assert result.answer == "Here are some slides about Azure"
-        assert len(result.referenced_slides) == 1
-        assert result.referenced_slides[0].slide_id == "BRK108_5"
-        assert result.follow_up_suggestions == ["Show me more about triggers"]
-    
-    @patch("src.services.slide_assistant.service.get_settings")
-    def test_parse_structured_response_fallback_to_json(self, mock_get_settings):
-        """Test fallback to JSON parsing when no value is present."""
-        settings = Mock()
-        settings.has_foundry_agent = True
-        mock_get_settings.return_value = settings
-        
-        service = SlideAssistantService()
-        
-        # Create mock response with JSON text
-        mock_response = Mock()
-        mock_response.value = None
-        mock_response.text = json.dumps({
-            "answer": "Fallback JSON response",
-            "referenced_slides": [],
-            "follow_up_suggestions": ["Try another search"]
-        })
-        
-        result = service._parse_structured_response(mock_response)
-        
-        assert result.answer == "Fallback JSON response"
-        assert result.referenced_slides == []
-        assert result.follow_up_suggestions == ["Try another search"]
-    
-    @patch("src.services.slide_assistant.service.get_settings")
-    def test_parse_structured_response_fallback_to_text(self, mock_get_settings):
-        """Test fallback when response is plain text."""
-        settings = Mock()
-        settings.has_foundry_agent = True
-        mock_get_settings.return_value = settings
-        
-        service = SlideAssistantService()
-        
-        # Create mock response with plain text
-        mock_response = Mock()
-        mock_response.value = None
-        mock_response.text = "Plain text fallback response"
-        
-        result = service._parse_structured_response(mock_response)
-        
-        assert result.answer == "Plain text fallback response"
-        assert result.referenced_slides == []
-    
-    @patch("src.services.slide_assistant.service.get_settings")
-    def test_parse_structured_response_no_output_raises(self, mock_get_settings):
-        """Test that missing output raises ValueError."""
-        settings = Mock()
-        settings.has_foundry_agent = True
-        mock_get_settings.return_value = settings
-        
-        service = SlideAssistantService()
-        
-        # Create mock response with no value and no text
-        mock_response = Mock()
-        mock_response.value = None
-        mock_response.text = None
-        
-        with pytest.raises(ValueError):
-            service._parse_structured_response(mock_response)
 
 
 class TestChatResponseModel:
@@ -358,22 +276,21 @@ class TestSlideAssistantService:
         service = SlideAssistantService()
         assert service.is_available is False
     
-    @pytest.mark.asyncio
     @patch("src.services.slide_assistant.service.get_settings")
-    async def test_chat_unavailable_returns_error(self, mock_get_settings):
+    def test_chat_unavailable_returns_error(self, mock_get_settings):
         """Test chat returns error when service unavailable."""
         settings = Mock()
         settings.has_foundry_agent = False
         mock_get_settings.return_value = settings
         
         service = SlideAssistantService()
-        response = await service.chat("Find slides about AI")
+        response = asyncio.run(service.chat("Find slides about AI"))
         
         assert "not available" in response.answer.lower()
         assert response.referenced_slides == []
     
     @patch("src.services.slide_assistant.service.get_settings")
-    def test_enrich_slides_with_thumbnails(self, mock_get_settings, mock_settings, mock_search_results):
+    def test_enrich_slides(self, mock_get_settings, mock_settings, mock_search_results):
         """Test thumbnail enrichment for referenced slides."""
         mock_get_settings.return_value = mock_settings
         service = SlideAssistantService()
@@ -390,7 +307,7 @@ class TestSlideAssistantService:
             ),
         ]
         
-        enriched = service._enrich_slides_with_thumbnails(slides, mock_search_results)
+        enriched = service._enrich_slides(slides, mock_search_results)
         
         assert len(enriched) == 1
         assert enriched[0].thumbnail_url == "/thumbnails/BRK108_5.png"
@@ -412,10 +329,9 @@ class TestSlideAssistantService:
 class TestSlideAssistantServiceIntegration:
     """Integration-style tests with mocked external dependencies."""
     
-    @pytest.mark.asyncio
     @patch("src.services.slide_assistant.service.get_search_service")
     @patch("src.services.slide_assistant.service.get_settings")
-    async def test_chat_success(
+    def test_chat_success(
         self,
         mock_get_settings,
         mock_get_search_service,
@@ -449,40 +365,30 @@ class TestSlideAssistantServiceIntegration:
         # Create service
         service = SlideAssistantService()
         
-        # Mock the Agent Framework response with structured output
-        mock_structured_output = ChatResponseOutput(
-            answer="I found some great slides about Azure Functions!",
-            referenced_slides=[
-                SlideReference(
-                    slide_id="BRK108_5",
-                    session_code="BRK108",
-                    slide_number=5,
-                    title="Azure Functions Overview",
-                    content="Content about serverless...",
-                    event="Build",
-                    session_url="https://example.com",
-                    ppt_url="https://example.com/ppt",
-                    relevance_reason="Covers Azure Functions in depth."
-                )
-            ],
-            follow_up_suggestions=["Want to see more about triggers?"]
-        )
+        # Mock the _invoke_agent method to return structured response
+        async def mock_invoke_agent(input_text, **kwargs):
+            return {
+                "answer": "I found some great slides about Azure Functions!",
+                "referenced_slides": [
+                    {
+                        "slide_id": "BRK108_5",
+                        "session_code": "BRK108",
+                        "slide_number": 5,
+                        "title": "Azure Functions Overview",
+                        "content": "Content about serverless...",
+                        "event": "Build",
+                        "session_url": "https://example.com",
+                        "ppt_url": "https://example.com/ppt",
+                        "relevance_reason": "Covers Azure Functions in depth."
+                    }
+                ],
+                "follow_up_suggestions": ["Want to see more about triggers?"]
+            }
         
-        mock_agent_response = Mock()
-        mock_agent_response.value = mock_structured_output
-        mock_agent_response.text = None
-        
-        # Create mock agent
-        mock_agent = AsyncMock()
-        mock_agent.run = AsyncMock(return_value=mock_agent_response)
-        mock_agent.__aenter__ = AsyncMock(return_value=mock_agent)
-        mock_agent.__aexit__ = AsyncMock(return_value=None)
-        
-        # Inject mocked agent
-        service._agent = mock_agent
+        service._invoke_agent = mock_invoke_agent
         
         # Execute
-        response = await service.chat("Find slides about Azure Functions")
+        response = asyncio.run(service.chat("Find slides about Azure Functions"))
         
         # Verify
         assert "Azure Functions" in response.answer
