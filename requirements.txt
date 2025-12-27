@@ -27,6 +27,7 @@ openai>=2.8.1
 
 # Agent Frameworks
 azure-ai-projects --pre
+agent-framework[azure]
 
 # Tracing (Optional - for OpenTelemetry support)
 azure-monitor-opentelemetry>=1.6.4

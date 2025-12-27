@@ -136,10 +136,6 @@ class SlideAssistantService:
         )
         logger.info(f"Foundry agent ready: {self._agent.name} v{self._agent.version}")
     
-    # -------------------------------------------------------------------------
-    # Public API
-    # -------------------------------------------------------------------------
-    
     async def chat(
         self,
         message: str,
@@ -156,7 +152,7 @@ class SlideAssistantService:
             # 2. Build prompt with context
             input_text = self._build_prompt(search_results, message, history)
             
-            # 3. Call agent (with MAF telemetry)
+            # 3. Call agent
             response_data = await self._invoke_agent(input_text)
             
             # 4. Build response with enriched slides
@@ -209,7 +205,7 @@ class SlideAssistantService:
             yield sse_error("An error occurred")
     
     # -------------------------------------------------------------------------
-    # Agent Invocation (with MAF telemetry)
+    # Agent Invocation
     # -------------------------------------------------------------------------
     
     @with_maf_telemetry("SlideAssistant", "AI-powered slide search assistant")

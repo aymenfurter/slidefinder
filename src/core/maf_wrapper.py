@@ -1,9 +1,8 @@
 """
 Microsoft Agent Framework (MAF) wrapper for Foundry Agents V2.
 
-TEMPORARY WORKAROUND (December 2025):
 At the time of writing, MAF only supports V1 Agents via AzureAIAgentClient.
-V2 Agents (Foundry Agents with PromptAgentDefinition and Responses API) are
+V2 Agents (Foundry Agents with PromptAgentDefinition) are
 not yet supported by MAF's built-in clients.
 
 This wrapper bridges that gap by providing a simple decorator that:
@@ -67,7 +66,7 @@ def extract_function_call(response, function_name: str, fallback: dict | None = 
 
 
 # =============================================================================
-# SSE Streaming Helpers
+# SSE Streaming 
 # =============================================================================
 
 def sse_event(event_type: str, data: dict | str | None = None) -> str:
@@ -97,7 +96,7 @@ def sse_done() -> str:
 
 
 # =============================================================================
-# MAF Telemetry Wrapper
+# MAF Wrapper
 # =============================================================================
 
 @use_agent_instrumentation(capture_usage=True)
