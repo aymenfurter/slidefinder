@@ -223,6 +223,7 @@ export class AnimatedLogo {
         const dpr = window.devicePixelRatio || 1;
         this.canvas.width = this.size * dpr;
         this.canvas.height = this.size * dpr;
+        
         this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     }
     
@@ -367,7 +368,7 @@ export function initAnimatedLogo() {
     
     // Create animated logo
     const animatedLogo = new AnimatedLogo(logoContainer, {
-        size: 80,
+        size: 200,
         heat: 0,
         animated: true
     });
