@@ -259,6 +259,18 @@ export async function* parseSSEStream(stream) {
     }
 }
 
+/**
+ * Fetches the debug status from the API.
+ * @returns {Promise<Object>} The debug status
+ */
+export async function fetchDebugStatus() {
+    const response = await fetch('/api/debug');
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: Failed to fetch debug status`);
+    }
+    return response.json();
+}
+
 // Export as default object for convenient importing
 const api = {
     isSessionId,
@@ -270,7 +282,8 @@ const api = {
     getThumbnailUrl,
     fetchAIOverview,
     fetchAIOverviewStream,
-    parseSSEStream
+    parseSSEStream,
+    fetchDebugStatus
 };
 
 export default api;

@@ -14,6 +14,12 @@
     <!-- Security headers are set server-side -->
 </head>
 <body>
+    <!-- Debug Mode Indicator (top-left, independent of nav) -->
+    <div class="debug-indicator" id="debug-indicator" style="display: none;">
+        <span class="debug-badge">🐛 DEBUG</span>
+        <span class="trace-count" id="trace-count" title="Traces sent">0 traces</span>
+    </div>
+
     <div class="nav-bar">
         <button class="nav-btn ai-btn" id="deckbuilder-toggle" aria-label="Toggle AI Deck Builder">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -412,27 +418,36 @@
         </div>
     </div>
 
+    <!-- GDPR Blocking Overlay -->
+    <div class="gdpr-overlay" id="gdpr-overlay"></div>
+
     <!-- Disclaimer Footer -->
     <footer class="disclaimer-footer" id="disclaimer-footer">
         <div class="disclaimer-content">
             <p class="disclaimer-text">
-                All presentation content displayed in this application is the property of Microsoft Corporation.
-                This is a personal project by <a href="https://github.com/aymenfurter" target="_blank" rel="noopener noreferrer">Aymen Furter</a> and is <strong>not affiliated with, endorsed by, or an official product or service of Microsoft</strong>.
-                This tool is provided "as is" without warranty of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, and non-infringement.
-                The author assumes no liability for any damages, losses, or issues arising from its use.
-                <strong>Do not enter or process any personal, sensitive, or confidential data.</strong>
-                By using this application, you agree to these terms.
-                No personal data is collected or stored by this application beyond locally cached preferences.
-                For questions or concerns, contact via <a href="https://github.com/aymenfurter" target="_blank" rel="noopener noreferrer">GitHub</a>.
+                All presentation content displayed in this application is the property of Microsoft Corporation. This is a personal project by <a href="https://github.com/aymenfurter" target="_blank" rel="noopener noreferrer">Aymen Furter</a> and is <strong>not affiliated with, endorsed by, or an official product or service of Microsoft</strong>. This tool is provided "as is" without warranty of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, and non-infringement. The author assumes no liability for any damages, losses, or issues arising from its use. <strong>Do not enter or process any personal, sensitive, or confidential data.</strong> By using this application, you agree to these terms. Slide Assistant conversations are stored for 90 days to ensure responsible use and improve responses. For questions or concerns, contact via <a href="https://github.com/aymenfurter" target="_blank" rel="noopener noreferrer">GitHub</a>.
             </p>
-            <button class="disclaimer-dismiss-btn" id="disclaimer-dismiss-btn" title="Dismiss" aria-label="Dismiss disclaimer">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
+            <div class="disclaimer-buttons">
+                <button class="disclaimer-btn disclaimer-btn-decline" id="disclaimer-decline-btn" title="Decline and learn more" aria-label="Decline terms">
+                    Decline
+                </button>
+                <button class="disclaimer-btn disclaimer-btn-agree" id="disclaimer-agree-btn" title="Accept terms" aria-label="Accept terms">
+                    Accept
+                </button>
+            </div>
         </div>
     </footer>
+    
+    <!-- Consent Management Link (visible after accepting) -->
+    <div class="consent-link-container" id="consent-link-container">
+        <button class="consent-link" id="manage-consent-btn" title="Manage your consent preferences" aria-label="Manage consent">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            Manage Consent
+        </button>
+    </div>
 
     <script type="module" src="/static/js/main.js"></script>
 </body>

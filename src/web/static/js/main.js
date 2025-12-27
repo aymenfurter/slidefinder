@@ -12,6 +12,8 @@
 
 import { loadFavorites } from './components/favorites.js';
 import { initDisclaimer } from './components/disclaimer.js';
+import { initAnimatedLogo } from './components/animated-logo.js';
+import { initDebugIndicator } from './components/debug-indicator.js';
 import { setupEventListeners } from './events/listeners.js';
 import { getById } from './utils/dom.js';
 
@@ -28,6 +30,12 @@ function initApp() {
     
     // Initialize disclaimer footer
     initDisclaimer();
+    
+    // Initialize animated logo
+    initAnimatedLogo();
+    
+    // Initialize debug indicator (shows if DEBUG mode is enabled)
+    initDebugIndicator();
     
     // Focus search input on load
     getById('q')?.focus();

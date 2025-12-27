@@ -3,6 +3,7 @@ Unit tests for the AI Overview Service.
 Tests agent framework integration and service functionality.
 """
 
+import asyncio
 import pytest
 from unittest.mock import Mock, patch, AsyncMock
 
@@ -130,27 +131,25 @@ class TestAIOverviewService:
         service = AIOverviewService()
         assert service.is_available is False
     
-    @pytest.mark.asyncio
     @patch("src.services.ai_overview.service.get_settings")
-    async def test_generate_overview_returns_empty_when_unavailable(self, mock_get_settings):
+    def test_generate_overview_returns_empty_when_unavailable(self, mock_get_settings):
         """Test generate_overview returns empty string when service unavailable."""
         settings = Mock()
         settings.has_azure_openai = False
         mock_get_settings.return_value = settings
         
         service = AIOverviewService()
-        result = await service.generate_overview(
+        result = asyncio.run(service.generate_overview(
             query="test",
             search_context="{}",
             result_count=10,
             unique_sessions=3,
-        )
+        ))
         
         assert result == ""
     
-    @pytest.mark.asyncio
     @patch("src.services.ai_overview.service.get_settings")
-    async def test_generate_overview_success(self, mock_get_settings, mock_settings):
+    def test_generate_overview_success(self, mock_get_settings, mock_settings):
         """Test successful overview generation with mocked agent."""
         mock_get_settings.return_value = mock_settings
         
@@ -170,19 +169,18 @@ class TestAIOverviewService:
         service._chat_client = mock_client
         service._overview_agent = mock_agent
         
-        result = await service.generate_overview(
+        result = asyncio.run(service.generate_overview(
             query="Azure Functions",
             search_context='{"sessions": ["BRK101"]}',
             result_count=10,
             unique_sessions=3,
-        )
+        ))
         
         assert result == "This is a great overview of Azure Functions."
         mock_agent.run.assert_called_once()
     
-    @pytest.mark.asyncio
     @patch("src.services.ai_overview.service.get_settings")
-    async def test_generate_overview_handles_error(self, mock_get_settings, mock_settings):
+    def test_generate_overview_handles_error(self, mock_get_settings, mock_settings):
         """Test that errors are handled gracefully."""
         mock_get_settings.return_value = mock_settings
         
@@ -198,12 +196,12 @@ class TestAIOverviewService:
         service._chat_client = mock_client
         service._overview_agent = mock_agent
         
-        result = await service.generate_overview(
+        result = asyncio.run(service.generate_overview(
             query="test",
             search_context="{}",
             result_count=1,
             unique_sessions=1,
-        )
+        ))
         
         # Should return empty string on error, not raise
         assert result == ""

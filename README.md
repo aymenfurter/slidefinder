@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="src/web/static/favicon/favicon.svg" alt="SlideFinder Logo" width="80" height="80">
+<img src="src/web/static/favicon/favicon.svg" alt="SlideFinder Logo" width="180" height="180">
 
 # SlideFinder
 

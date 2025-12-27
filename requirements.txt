@@ -23,7 +23,11 @@ azure-identity==1.25.1
 azure-search-documents==11.6.0
 
 # OpenAI
-openai==2.8.1
+openai>=2.8.1
 
-# Microsoft Agent Framework
-agent-framework
+# Agent Frameworks
+azure-ai-projects --pre
+agent-framework[azure]
+
+# Tracing (Optional - for OpenTelemetry support)
+azure-monitor-opentelemetry>=1.6.4

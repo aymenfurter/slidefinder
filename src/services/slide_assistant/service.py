@@ -1,28 +1,45 @@
 """
-Slide Assistant Service
-Provides AI-powered conversational search for finding slides.
+Slide Assistant Service - AI-powered conversational search.
 
-Uses Microsoft Agent Framework for consistent orchestration across all AI services.
-Structured output API provides type-safe LLM responses.
+This service demonstrates how to use Azure AI Foundry SDK to build
+an AI agent with function calling for structured outputs.
+
+Architecture:
+- Uses AIProjectClient from azure-ai-projects SDK
+- Creates versioned agents with PromptAgentDefinition
+- Invokes via Responses API with agent_reference
+- Function calling enforces structured JSON output
 """
 
 import json
 import logging
 from typing import Optional, AsyncGenerator
 
-from agent_framework import ChatMessage, Role
-from agent_framework.azure import AzureOpenAIChatClient
+from azure.ai.projects import AIProjectClient
+from azure.ai.projects.models import PromptAgentDefinition, FunctionTool
 from azure.identity import DefaultAzureCredential
 from pydantic import ValidationError
 
 from src.core import get_settings
+from src.core.maf_wrapper import (
+    with_maf_telemetry,
+    extract_function_call,
+    sse_status,
+    sse_event,
+    sse_error,
+    sse_done,
+)
 from src.services.search import get_search_service
 from .models import ChatMessage as ChatHistoryMessage, ChatResponse, ReferencedSlide
 
 logger = logging.getLogger(__name__)
 
 
-SLIDE_ASSISTANT_INSTRUCTIONS = """You are a helpful slide assistant for SlideFinder, a tool that helps users find slides from Microsoft Build and Ignite conferences.
+# =============================================================================
+# Agent Configuration
+# =============================================================================
+
+AGENT_INSTRUCTIONS = """You are a helpful slide assistant for SlideFinder, a tool that helps users find slides from Microsoft Build and Ignite conferences.
 
 Your role is to help users find the most relevant slides for their needs. You have access to search results from a large collection of presentation slides.
 
@@ -34,317 +51,271 @@ Guidelines:
 - Keep your answers concise but informative
 - Always reference specific slides when discussing content
 
-For follow_up_suggestions: Generate 2-3 natural follow-up questions that the USER would logically want to ask next to explore the topic further. These should be phrased as direct questions the user might type, like "Show me slides about Azure security" or "What sessions cover Kubernetes deployment?" - NOT questions directed at the user like "Would you like...?" or "Are you interested in...?"
+For follow_up_suggestions: Generate 2-3 natural follow-up questions that the USER would logically want to ask next. These should be phrased as direct questions like "Show me slides about Azure security" - NOT questions directed at the user like "Would you like...?"
 
-The search results below contain slides that might be relevant to the user's query. Analyze them and provide helpful recommendations.
+IMPORTANT: You MUST call the 'provide_chat_response' function to return your response.
+Only include slides that are actually relevant to the user's question."""
 
-Only include slides that are actually relevant to the user's question. Provide a clear relevance_reason for each slide."""
+RESPONSE_FUNCTION = FunctionTool(
+    name="provide_chat_response",
+    description="Provide a structured response to the user's slide search query.",
+    parameters={
+        "type": "object",
+        "properties": {
+            "answer": {
+                "type": "string",
+                "description": "Helpful answer to the user's question about finding slides.",
+            },
+            "referenced_slides": {
+                "type": "array",
+                "description": "List of relevant slides that match the user's query.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "slide_id": {"type": "string"},
+                        "session_code": {"type": "string"},
+                        "slide_number": {"type": "integer"},
+                        "title": {"type": "string"},
+                        "content": {"type": "string"},
+                        "event": {"type": "string"},
+                        "session_url": {"type": "string"},
+                        "ppt_url": {"type": "string"},
+                        "relevance_reason": {"type": "string"},
+                    },
+                    "required": ["slide_id", "session_code", "slide_number", "title", "content", "event", "session_url", "ppt_url", "relevance_reason"],
+                    "additionalProperties": False,
+                },
+            },
+            "follow_up_suggestions": {
+                "type": "array",
+                "items": {"type": "string"},
+            },
+        },
+        "required": ["answer", "referenced_slides", "follow_up_suggestions"],
+        "additionalProperties": False,
+    },
+    strict=True,
+)
 
+
+# =============================================================================
+# Service Implementation
+# =============================================================================
 
 class SlideAssistantService:
-    """
-    Service for AI-powered slide search assistance.
-    
-    Uses Microsoft Agent Framework with Azure OpenAI for consistent
-    orchestration across all AI services. Structured output provides
-    type-safe responses.
-    """
+    """AI-powered slide search using Azure AI Foundry."""
     
     def __init__(self):
-        """Initialize the slide assistant service."""
         self._settings = get_settings()
-        self._chat_client: Optional[AzureOpenAIChatClient] = None
-        self._assistant_agent = None
+        self._project: AIProjectClient | None = None
+        self._openai = None
+        self._agent = None
     
     @property
     def is_available(self) -> bool:
-        """Check if the service is available."""
-        return self._settings.has_azure_openai
+        return self._settings.has_foundry_agent
     
     def _ensure_client(self) -> None:
-        """Ensure the chat client and agent are initialized."""
-        if self._chat_client is None:
-            credential = DefaultAzureCredential()
-            self._chat_client = AzureOpenAIChatClient(
-                credential=credential,
-                endpoint=self._settings.azure_openai_endpoint or "",
-                deployment_name=self._settings.azure_openai_nano_deployment,
-                api_version=self._settings.azure_openai_api_version,
-            )
-            
-            # Create the slide assistant agent
-            self._assistant_agent = self._chat_client.create_agent(
-                name="SlideAssistantAgent",
-                instructions=SLIDE_ASSISTANT_INSTRUCTIONS,
-            )
-    
-    def _search_slides(self, query: str) -> list[dict]:
-        """Search for relevant slides."""
-        search_service = get_search_service()
-        results, _, _ = search_service.search(query, limit=15)
+        """Initialize Foundry client and agent on first use."""
+        if self._project is not None:
+            return
         
-        slides = []
-        for result in results:
-            thumbnail_url = None
-            if result.has_thumbnail:
-                thumbnail_url = f"/thumbnails/{result.session_code}_{result.slide_number}.png"
-            
-            slides.append({
-                "slide_id": result.slide_id,
-                "session_code": result.session_code,
-                "slide_number": result.slide_number,
-                "title": result.title,
-                "content": result.content,
-                "event": result.event,
-                "session_url": result.session_url,
-                "ppt_url": result.ppt_url,
-                "score": result.score,
-                "thumbnail_url": thumbnail_url,
-            })
+        self._project = AIProjectClient(
+            endpoint=self._settings.azure_ai_project_endpoint or "",
+            credential=DefaultAzureCredential(),
+        )
+        self._openai = self._project.get_openai_client()
         
-        return slides
-    
-    def _build_context(self, search_results: list[dict]) -> str:
-        """Build context string with search results."""
-        context = "## Available Slides from Search:\n\n"
-        for i, slide in enumerate(search_results[:10], 1):
-            context += f"### Slide {i}\n"
-            context += f"- **Slide ID**: {slide['slide_id']}\n"
-            context += f"- **Session**: {slide['session_code']} (Slide #{slide['slide_number']})\n"
-            context += f"- **Title**: {slide['title']}\n"
-            context += f"- **Event**: {slide['event']}\n"
-            context += f"- **Session URL**: {slide['session_url']}\n"
-            context += f"- **PPT URL**: {slide['ppt_url']}\n"
-            context += f"- **Content**: {slide['content'][:500]}...\n\n"
-        return context
-    
-    def _build_messages(
-        self,
-        context: str,
-        message: str,
-        history: list[ChatHistoryMessage] = None,
-    ) -> list[ChatMessage]:
-        """Build message list for the agent."""
-        messages = []
-        
-        # Add context as first user message
-        messages.append(ChatMessage(
-            role=Role.USER,
-            text=f"Here are the search results for context:\n\n{context}"
-        ))
-        
-        # Add history (map assistant to ASSISTANT role)
-        history = history or []
-        for msg in history[-6:]:  # Keep last 6 messages
-            if msg.role == "user":
-                messages.append(ChatMessage(role=Role.USER, text=msg.content))
-            else:
-                messages.append(ChatMessage(role=Role.ASSISTANT, text=msg.content))
-        
-        # Add current message
-        messages.append(ChatMessage(role=Role.USER, text=message))
-        
-        return messages
+        self._agent = self._project.agents.create_version(
+            agent_name=self._settings.azure_ai_foundry_agent_name,
+            definition=PromptAgentDefinition(
+                model=self._settings.azure_openai_nano_deployment,
+                instructions=AGENT_INSTRUCTIONS,
+                tools=[RESPONSE_FUNCTION],
+            ),
+        )
+        logger.info(f"Foundry agent ready: {self._agent.name} v{self._agent.version}")
     
     async def chat(
         self,
         message: str,
         history: list[ChatHistoryMessage] = None,
     ) -> ChatResponse:
-        """
-        Process a chat message and return a structured response.
-        
-        Args:
-            message: The user's message
-            history: Previous messages in the conversation
-            
-        Returns:
-            ChatResponse with answer and referenced slides
-        """
+        """Process a chat message and return structured response."""
         if not self.is_available:
-            return ChatResponse(
-                answer="I'm sorry, the AI service is not available at the moment.",
-                referenced_slides=[],
-                follow_up_suggestions=[],
-            )
+            return self._error_response("AI service is not available.")
         
         try:
-            self._ensure_client()
-            history = history or []
-            
-            # Search for relevant slides
+            # 1. Search for relevant slides
             search_results = self._search_slides(message)
             
-            # Build context and messages
-            context = self._build_context(search_results)
-            messages = self._build_messages(context, message, history)
+            # 2. Build prompt with context
+            input_text = self._build_prompt(search_results, message, history)
             
-            # Use agent with structured output
-            response = await self._assistant_agent.run(
-                messages,
-                response_format=ChatResponse
-            )
+            # 3. Call agent
+            response_data = await self._invoke_agent(input_text)
             
-            if response.value and isinstance(response.value, ChatResponse):
-                parsed = response.value
-            elif response.value:
-                # Try to parse if it's a dict or similar
-                parsed = ChatResponse.model_validate(response.value)
-            else:
-                raise ValueError("Failed to parse response")
-            
-            # Enrich referenced slides with thumbnail URLs from search results
-            enriched_slides = self._enrich_slides_with_thumbnails(
-                parsed.referenced_slides, search_results
-            )
+            # 4. Build response with enriched slides
+            slides = [ReferencedSlide(**s) for s in response_data.get("referenced_slides", [])]
+            enriched = self._enrich_slides(slides, search_results)
             
             return ChatResponse(
-                answer=parsed.answer,
-                referenced_slides=enriched_slides,
-                follow_up_suggestions=parsed.follow_up_suggestions,
+                answer=response_data.get("answer", ""),
+                referenced_slides=enriched,
+                follow_up_suggestions=response_data.get("follow_up_suggestions", []),
             )
             
-        except (ValidationError, ValueError) as e:
-            logger.error(f"Slide assistant parsing error: {e}")
+        except (ValidationError, ValueError, json.JSONDecodeError) as e:
+            logger.error(f"Response error: {e}")
             return self._error_response("I couldn't process the response properly.")
         except Exception as e:
-            logger.error(f"Slide assistant error: {e}")
+            logger.error(f"Agent error: {e}")
             return self._error_response("I encountered an error. Please try again.")
-    
-    def _enrich_slides_with_thumbnails(
-        self,
-        slides: list[ReferencedSlide],
-        search_results: list[dict],
-    ) -> list[ReferencedSlide]:
-        """Add thumbnail URLs and ppt URLs to referenced slides from search results."""
-        search_lookup = {
-            sr["slide_id"]: {
-                "thumbnail_url": sr.get("thumbnail_url"),
-                "ppt_url": sr.get("ppt_url", ""),
-                "session_url": sr.get("session_url", ""),
-            }
-            for sr in search_results
-        }
-        
-        return [
-            ReferencedSlide(
-                slide_id=slide.slide_id,
-                session_code=slide.session_code,
-                slide_number=slide.slide_number,
-                title=slide.title,
-                content=slide.content[:300],
-                event=slide.event,
-                session_url=slide.session_url or search_lookup.get(slide.slide_id, {}).get("session_url", ""),
-                ppt_url=search_lookup.get(slide.slide_id, {}).get("ppt_url", ""),
-                relevance_reason=slide.relevance_reason,
-                thumbnail_url=search_lookup.get(slide.slide_id, {}).get("thumbnail_url"),
-            )
-            for slide in slides
-        ]
-    
-    def _error_response(self, message: str) -> ChatResponse:
-        """Create a standard error response."""
-        return ChatResponse(
-            answer=message,
-            referenced_slides=[],
-            follow_up_suggestions=["Try rephrasing your question", "Search for a specific topic"],
-        )
     
     async def chat_stream(
         self,
         message: str,
         history: list[ChatHistoryMessage] = None,
     ) -> AsyncGenerator[str, None]:
-        """
-        Process a chat message with streaming response.
-        
-        Uses Microsoft Agent Framework for consistent orchestration.
-        Yields SSE-formatted events for real-time UI updates.
-        
-        Args:
-            message: The user's message
-            history: Previous messages in the conversation
-            
-        Yields:
-            SSE-formatted event strings
-        """
+        """Process chat with Server-Sent Events for progress updates."""
         if not self.is_available:
-            yield 'data: {"type": "error", "message": "AI service not available"}\n\n'
+            yield sse_error("AI service not available")
             return
         
         try:
-            self._ensure_client()
-            history = history or []
-            
-            # First, search for relevant slides
-            yield 'data: {"type": "status", "message": "Searching for relevant slides..."}\n\n'
+            yield sse_status("Searching for relevant slides...")
             search_results = self._search_slides(message)
             
-            # Send search results for immediate display
-            slides_for_frontend = []
-            for slide in search_results[:8]:
-                slides_for_frontend.append({
-                    "slide_id": slide["slide_id"],
-                    "session_code": slide["session_code"],
-                    "slide_number": slide["slide_number"],
-                    "title": slide["title"],
-                    "content": slide["content"][:200],
-                    "event": slide["event"],
-                    "session_url": slide["session_url"],
-                    "ppt_url": slide.get("ppt_url", ""),
-                    "thumbnail_url": slide.get("thumbnail_url"),
-                })
+            yield sse_status("Analyzing slides...")
+            input_text = self._build_prompt(search_results, message, history)
+            response_data = await self._invoke_agent(input_text)
             
-            # Build context and messages
-            context = self._build_context(search_results)
-            messages = self._build_messages(context, message, history)
+            slides = [ReferencedSlide(**s) for s in response_data.get("referenced_slides", [])]
+            enriched = self._enrich_slides(slides, search_results)
             
-            yield 'data: {"type": "status", "message": "Analyzing slides..."}\n\n'
+            yield sse_event("response", {
+                "answer": response_data.get("answer", ""),
+                "referenced_slides": [s.model_dump() for s in enriched],
+                "follow_up_suggestions": response_data.get("follow_up_suggestions", []),
+            })
+            yield sse_done()
             
-            # Use agent with structured output
-            response = await self._assistant_agent.run(
-                messages,
-                response_format=ChatResponse
-            )
-            
-            if response.value and isinstance(response.value, ChatResponse):
-                parsed = response.value
-            elif response.value:
-                parsed = ChatResponse.model_validate(response.value)
-            else:
-                raise ValueError("Failed to parse response")
-            
-            # Enrich referenced slides with thumbnail URLs
-            enriched_slides = self._enrich_slides_with_thumbnails(
-                parsed.referenced_slides, search_results
-            )
-            
-            # Send the complete response
-            final_response = {
-                "type": "response",
-                "answer": parsed.answer,
-                "referenced_slides": [slide.model_dump() for slide in enriched_slides],
-                "follow_up_suggestions": parsed.follow_up_suggestions,
-            }
-            
-            yield f'data: {json.dumps(final_response)}\n\n'
-            yield 'data: {"type": "done"}\n\n'
-            
-        except (ValidationError, ValueError) as e:
-            logger.error(f"Slide assistant stream parsing error: {e}")
-            yield f'data: {json.dumps({"type": "error", "message": "Failed to process response"})}\n\n'
         except Exception as e:
-            logger.error(f"Slide assistant stream error: {e}")
-            yield f'data: {json.dumps({"type": "error", "message": "An error occurred"})}\n\n'
+            logger.error(f"Stream error: {e}")
+            yield sse_error("An error occurred")
+    
+    # -------------------------------------------------------------------------
+    # Agent Invocation
+    # -------------------------------------------------------------------------
+    
+    @with_maf_telemetry("SlideAssistant", "AI-powered slide search assistant")
+    async def _invoke_agent(self, input_text: str, **kwargs) -> dict:
+        """Call Foundry agent - wrapped with MAF for telemetry."""
+        self._ensure_client()
+        
+        response = self._openai.responses.create(
+            input=input_text,
+            extra_body={"agent": {"name": self._settings.azure_ai_foundry_agent_name, "type": "agent_reference"}},
+        )
+        
+        return extract_function_call(
+            response,
+            "provide_chat_response",
+            fallback={
+                "answer": "I couldn't generate a response.",
+                "referenced_slides": [],
+                "follow_up_suggestions": ["Try searching for a specific topic"],
+            },
+        )
+    
+    # -------------------------------------------------------------------------
+    # Helpers
+    # -------------------------------------------------------------------------
+    
+    def _search_slides(self, query: str) -> list[dict]:
+        """Search for relevant slides."""
+        search_service = get_search_service()
+        results, _, _ = search_service.search(query, limit=15)
+        
+        return [{
+            "slide_id": r.slide_id,
+            "session_code": r.session_code,
+            "slide_number": r.slide_number,
+            "title": r.title,
+            "content": r.content,
+            "event": r.event,
+            "session_url": r.session_url,
+            "ppt_url": r.ppt_url,
+            "score": r.score,
+            "thumbnail_url": f"/thumbnails/{r.session_code}_{r.slide_number}.png" if r.has_thumbnail else None,
+        } for r in results]
+    
+    def _build_prompt(
+        self,
+        search_results: list[dict],
+        message: str,
+        history: list[ChatHistoryMessage] = None,
+    ) -> str:
+        """Build prompt with search context and conversation history."""
+        context = "## Available Slides:\n\n"
+        for i, slide in enumerate(search_results[:10], 1):
+            context += f"### Slide {i}\n"
+            context += f"- **ID**: {slide['slide_id']}\n"
+            context += f"- **Session**: {slide['session_code']} (#{slide['slide_number']})\n"
+            context += f"- **Title**: {slide['title']}\n"
+            context += f"- **Event**: {slide['event']}\n"
+            context += f"- **URLs**: {slide['session_url']} | {slide['ppt_url']}\n"
+            context += f"- **Content**: {slide['content'][:500]}...\n\n"
+        
+        parts = [f"Search results:\n\n{context}"]
+        for msg in (history or [])[-6:]:
+            parts.append(f"[{msg.role.upper()}]: {msg.content}")
+        parts.append(f"[USER]: {message}")
+        
+        return "\n\n".join(parts)
+    
+    def _enrich_slides(
+        self,
+        slides: list[ReferencedSlide],
+        search_results: list[dict],
+    ) -> list[ReferencedSlide]:
+        """Add thumbnail URLs to slides from search results."""
+        lookup = {s["slide_id"]: s for s in search_results}
+        
+        return [
+            ReferencedSlide(
+                slide_id=s.slide_id,
+                session_code=s.session_code,
+                slide_number=s.slide_number,
+                title=s.title,
+                content=s.content[:300],
+                event=s.event,
+                session_url=s.session_url or lookup.get(s.slide_id, {}).get("session_url", ""),
+                ppt_url=lookup.get(s.slide_id, {}).get("ppt_url", ""),
+                relevance_reason=s.relevance_reason,
+                thumbnail_url=lookup.get(s.slide_id, {}).get("thumbnail_url"),
+            )
+            for s in slides
+        ]
+    
+    def _error_response(self, message: str) -> ChatResponse:
+        return ChatResponse(
+            answer=message,
+            referenced_slides=[],
+            follow_up_suggestions=["Try rephrasing your question", "Search for a specific topic"],
+        )
 
 
-# Singleton instance
-_slide_assistant_service: Optional[SlideAssistantService] = None
+# =============================================================================
+# Singleton Access
+# =============================================================================
+
+_service: Optional[SlideAssistantService] = None
 
 
 def get_slide_assistant_service() -> SlideAssistantService:
-    """Get the singleton slide assistant service instance."""
-    global _slide_assistant_service
-    if _slide_assistant_service is None:
-        _slide_assistant_service = SlideAssistantService()
-    return _slide_assistant_service
+    """Get singleton service instance."""
+    global _service
+    if _service is None:
+        _service = SlideAssistantService()
+    return _service

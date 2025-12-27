@@ -57,6 +57,9 @@ export {
 // Disclaimer
 export { initDisclaimer } from './disclaimer.js';
 
+// Animated Logo
+export { AnimatedLogo, initAnimatedLogo } from './animated-logo.js';
+
 // Slide Assistant
 export {
     toggleSlideAssistant,
